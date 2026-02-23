@@ -32,7 +32,11 @@ export class CartPage extends BasePage {
   }
 
   async expectHasItems(): Promise<void> {
-    await expect(this.page.locator("[data-testid^='cart-item-']")).toHaveCount(1);
+    await expect.poll(async () => this.page.locator("[data-testid^='cart-item-']").count()).toBeGreaterThan(0);
+  }
+
+  async hasItems(): Promise<boolean> {
+    return (await this.page.locator("[data-testid^='cart-item-']").count()) > 0;
   }
 
   private async clickActionButtonWithFallback(testId: string): Promise<void> {

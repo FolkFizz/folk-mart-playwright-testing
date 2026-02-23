@@ -47,7 +47,8 @@ test.describe("AUTH-CATALOG :: API", () => {
       "CARTAPI-N01: invalid coupon code is rejected @api @regression @safe @cart",
       async ({ apiClient }) => {
         await apiClient.login(USERS.standard.username, USERS.standard.password);
-        await apiClient.addCartItem(1, 1);
+        const productId = await apiClient.getFirstInStockProductId();
+        await apiClient.addCartItem(productId, 1);
         const payload = await apiClient.applyCoupon(COUPONS.invalid, 404);
 
         expect(payload.ok).toBeFalsy();

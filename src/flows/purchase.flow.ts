@@ -36,6 +36,7 @@ export class PurchaseFlow {
     await this.homePage.addFirstProductToCart();
 
     await this.cartPage.open();
+    await this.cartPage.expectHasItems();
     await this.cartPage.applyCoupon(COUPONS.valid);
     await this.cartPage.goCheckout();
 
@@ -52,6 +53,7 @@ export class PurchaseFlow {
     await this.homePage.addFirstProductToCart();
 
     await this.cartPage.open();
+    await this.cartPage.expectHasItems();
     await this.cartPage.goCheckout();
 
     await this.checkoutPage.fillBilling(BILLING.name, USERS.standard.email, BILLING.address);

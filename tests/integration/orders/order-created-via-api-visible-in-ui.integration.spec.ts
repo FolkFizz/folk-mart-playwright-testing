@@ -11,7 +11,8 @@ test.beforeEach(async ({ apiClient }) => {
 
 const createOrderViaApi = async (apiClient: BackendApiClient): Promise<string> => {
   await apiClient.login(USERS.standard.username, USERS.standard.password);
-  await apiClient.addCartItem(1, 1);
+  const productId = await apiClient.getFirstInStockProductId();
+  await apiClient.addCartItem(productId, 1);
 
   const authorization = await apiClient.authorizePayment({
     cardNumber: PAYMENT.approvedCardNumber,

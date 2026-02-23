@@ -64,6 +64,16 @@ export class BackendApiClient {
     return this.get(path, 200);
   }
 
+  async getFirstInStockProductId(): Promise<number> {
+    const payload = await this.listProducts("sort=newest&limit=50");
+    const product = Array.isArray(payload?.products)
+      ? payload.products.find((item: any) => Number(item?.stock || 0) > 0)
+      : null;
+
+    expect(product, "Expected at least one product with stock > 0 for API flow").toBeTruthy();
+    return Number(product.id);
+  }
+
   async login(username: string, password: string, expectedStatus = 200): Promise<any> {
     return this.post("/api/auth/login", {
       body: { username, password },
@@ -110,6 +120,15 @@ export class BackendApiClient {
   async resetState(expectedStatus = 200): Promise<any> {
     return this.post("/api/test/reset", {
       body: {},
+      headers: { "x-test-api-key": ENV.testApiKey },
+      expectedStatus
+    });
+  }
+
+  async resetAllProductStocks(stock?: number, expectedStatus = 200): Promise<any> {
+    const body = Number.isFinite(Number(stock)) ? { stock } : {};
+    return this.post("/api/test/reset-stock", {
+      body,
       headers: { "x-test-api-key": ENV.testApiKey },
       expectedStatus
     });
