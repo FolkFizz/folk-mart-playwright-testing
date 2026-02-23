@@ -16,7 +16,12 @@ export class InboxPage extends BasePage {
   }
 
   async clickFirstLinkInBody(): Promise<void> {
-    await expect(this.page.locator(".mail-body a").first()).toBeVisible();
-    await this.page.locator(".mail-body a").first().click();
+    const link = this.page.locator(".mail-body a").first();
+    await expect(link).toBeVisible();
+    const href = await link.getAttribute("href");
+    if (!href) {
+      throw new Error("Expected invoice link in inbox email body but href was missing");
+    }
+    await this.page.goto(href, { waitUntil: "domcontentloaded" });
   }
 }

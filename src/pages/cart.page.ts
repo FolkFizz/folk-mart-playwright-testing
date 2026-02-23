@@ -11,22 +11,20 @@ export class CartPage extends BasePage {
 
   async applyCoupon(code: string): Promise<void> {
     await this.byTestId(TEST_IDS.cart.couponInput).fill(code);
-    await this.byTestId(TEST_IDS.cart.applyCoupon).click();
+    const couponRequest = this.page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        response.url().includes("/api/cart/coupon") &&
+        response.ok()
+    );
+    await this.clickActionButtonWithFallback(TEST_IDS.cart.applyCoupon);
+    await couponRequest;
+    await expect(this.byTestId(TEST_IDS.cart.couponBadge)).toBeVisible();
   }
 
   async goCheckout(): Promise<void> {
-    const checkoutButton = this.byTestId(TEST_IDS.cart.checkout);
-    await expect(checkoutButton).toBeVisible();
-    await expect(checkoutButton).toBeEnabled();
-    await checkoutButton.scrollIntoViewIfNeeded();
-
-    try {
-      await checkoutButton.click({ timeout: 10_000 });
-    } catch {
-      // Fallback for small/mobile viewports where transient overlays intercept pointer events.
-      await checkoutButton.focus();
-      await checkoutButton.press("Enter");
-    }
+    await this.clickActionButtonWithFallback(TEST_IDS.cart.checkout);
+    await expect(this.page).toHaveURL(/\/checkout/);
   }
 
   async increaseQuantityOnce(): Promise<void> {
@@ -35,5 +33,19 @@ export class CartPage extends BasePage {
 
   async expectHasItems(): Promise<void> {
     await expect(this.page.locator("[data-testid^='cart-item-']")).toHaveCount(1);
+  }
+
+  private async clickActionButtonWithFallback(testId: string): Promise<void> {
+    const actionButton = this.byTestId(testId);
+    await expect(actionButton).toBeVisible();
+    await expect(actionButton).toBeEnabled();
+
+    try {
+      await actionButton.click({ timeout: 10_000 });
+    } catch {
+      // Some mobile layouts briefly overlap the button during transitions.
+      await actionButton.focus();
+      await this.page.keyboard.press("Enter");
+    }
   }
 }

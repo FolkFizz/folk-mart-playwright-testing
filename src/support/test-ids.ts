@@ -36,6 +36,7 @@ export const TEST_IDS = {
     checkout: "checkout-btn",
     couponInput: "coupon-input",
     applyCoupon: "apply-coupon-btn",
+    couponBadge: "coupon-badge",
     totals: "cart-totals",
     qtyIncrease: "cart-qty-increase-btn",
     qtyDecrease: "cart-qty-decrease-btn"

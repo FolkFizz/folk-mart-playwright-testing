@@ -1,6 +1,7 @@
 import { test } from "../../../src/fixtures/test-fixtures";
 import { BILLING, PAYMENT } from "../../../src/data/business";
 import { USERS } from "../../../src/data/users";
+import { markWebkitAuthSessionKnownBug } from "../../../src/support/known-bug";
 import { resetStateIfEnabled } from "../../../src/support/state-control";
 
 test.beforeEach(async ({ apiClient }) => {
@@ -11,7 +12,8 @@ test.describe("CHECKOUT :: E2E", () => {
   test.describe("positive cases", () => {
     test(
       "CHECKOUTE2E-P01: customer completes checkout and opens invoice from inbox @e2e @critical @destructive @seeded @auth @cart @checkout @orders",
-      async ({ authFlow, purchaseFlow }) => {
+      async ({ authFlow, purchaseFlow, browserName }, testInfo) => {
+        markWebkitAuthSessionKnownBug(browserName, testInfo);
         await authFlow.loginAsStandardUser();
         await purchaseFlow.completeHappyPathCheckout();
         await purchaseFlow.openInvoiceFromInbox();
@@ -22,7 +24,8 @@ test.describe("CHECKOUT :: E2E", () => {
   test.describe("negative cases", () => {
     test(
       "CHECKOUTE2E-N01: declined card is rejected at authorization step @e2e @regression @safe @checkout",
-      async ({ authFlow, homePage, cartPage, checkoutPage }) => {
+      async ({ authFlow, homePage, cartPage, checkoutPage, browserName }, testInfo) => {
+        markWebkitAuthSessionKnownBug(browserName, testInfo);
         await authFlow.loginAsStandardUser();
         await homePage.open();
         await homePage.addFirstProductToCart();
@@ -39,7 +42,8 @@ test.describe("CHECKOUT :: E2E", () => {
   test.describe("edge cases", () => {
     test(
       "CHECKOUTE2E-E01: invalid expiry format is validated before placement @e2e @regression @safe @checkout",
-      async ({ authFlow, homePage, cartPage, checkoutPage }) => {
+      async ({ authFlow, homePage, cartPage, checkoutPage, browserName }, testInfo) => {
+        markWebkitAuthSessionKnownBug(browserName, testInfo);
         await authFlow.loginAsStandardUser();
         await homePage.open();
         await homePage.addFirstProductToCart();
