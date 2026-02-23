@@ -28,6 +28,10 @@ export const PASSWORDS = {
   minimumAccepted: "Abc123"
 } as const;
 
+export const RESET_TOKENS = {
+  invalid: "invalid-token-for-testing"
+} as const;
+
 export const PRODUCT_IDS = {
   stockEdgeCase: 1
 } as const;

@@ -1,4 +1,4 @@
-import { PASSWORDS } from "../../../src/data/business";
+import { PASSWORDS, RESET_TOKENS } from "../../../src/data/business";
 import { expect, test } from "../../../src/fixtures/test-fixtures";
 
 test.describe("AUTH RESET :: E2E", () => {
@@ -25,9 +25,9 @@ test.describe("AUTH RESET :: E2E", () => {
   test.describe("negative cases", () => {
     test(
       "AUTHRESETE2E-N01: invalid reset token shows rejected state @e2e @regression @safe @auth",
-      async ({ page }) => {
-        await page.goto("/reset-password/invalid-token-for-testing", { waitUntil: "domcontentloaded" });
-        await expect(page.getByText(/reset token is invalid or expired/i)).toBeVisible();
+      async ({ resetPasswordPage }) => {
+        await resetPasswordPage.openWithToken(RESET_TOKENS.invalid);
+        await resetPasswordPage.expectInvalidTokenMessage();
       }
     );
   });

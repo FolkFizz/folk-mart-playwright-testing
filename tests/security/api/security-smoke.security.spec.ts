@@ -2,6 +2,31 @@ import { expect, test } from "../../../src/fixtures/test-fixtures";
 import { USERS } from "../../../src/data/users";
 
 test.describe("SECURITY SMOKE :: API", () => {
+  
+  test.describe("positive cases", () => {
+    test(
+      "SECAPI-P01: security headers and session cookie flags are present @security @smoke @critical @safe @auth",
+      async ({ apiClient }) => {
+        const health = await apiClient.getResponse("/health");
+
+        expect(health.headers()["x-content-type-options"]).toBe("nosniff");
+        expect(health.headers()["x-frame-options"]).toBeTruthy();
+
+        const login = await apiClient.postResponse("/api/auth/login", {
+          body: {
+            username: USERS.standard.username,
+            password: USERS.standard.password
+          }
+        });
+
+        expect(login.status()).toBe(200);
+        const setCookie = login.headers()["set-cookie"] || "";
+        expect(setCookie).toContain("HttpOnly");
+        expect(setCookie).toContain("SameSite");
+      }
+    );
+  });
+
   test.describe("negative cases", () => {
     test(
       "SECAPI-N01: CORS rejects requests from unknown origin @security @critical @safe @catalog",
@@ -23,30 +48,6 @@ test.describe("SECURITY SMOKE :: API", () => {
 
         expect(payload.ok).toBeFalsy();
         expect(String(payload.message)).toMatch(/authentication required/i);
-      }
-    );
-  });
-
-  test.describe("positive cases", () => {
-    test(
-      "SECAPI-P01: security headers and session cookie flags are present @security @smoke @critical @safe @auth",
-      async ({ apiClient }) => {
-        const health = await apiClient.getResponse("/health");
-
-        expect(health.headers()["x-content-type-options"]).toBe("nosniff");
-        expect(health.headers()["x-frame-options"]).toBeTruthy();
-
-        const login = await apiClient.postResponse("/api/auth/login", {
-          body: {
-            username: USERS.standard.username,
-            password: USERS.standard.password
-          }
-        });
-
-        expect(login.status()).toBe(200);
-        const setCookie = login.headers()["set-cookie"] || "";
-        expect(setCookie).toContain("HttpOnly");
-        expect(setCookie).toContain("SameSite");
       }
     );
   });

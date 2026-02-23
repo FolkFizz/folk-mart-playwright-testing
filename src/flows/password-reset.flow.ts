@@ -22,15 +22,25 @@ export class PasswordResetFlow {
   }
 
   async requestAndResetPasswordFor(email: string, newPassword: string): Promise<void> {
+    await this.demoInboxPage.open();
+    let latestEmailIdBeforeRequest = await this.demoInboxPage.getLatestResetEmailId();
+
     await this.forgotPasswordPage.open();
     await this.forgotPasswordPage.requestReset(email);
 
-    await this.demoInboxPage.open();
-    await this.demoInboxPage.openLatestResetEmail();
-    await this.demoInboxPage.openFirstResetLink();
+    // Retry once with a newer reset email if the first opened token is already invalid.
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      latestEmailIdBeforeRequest = await this.demoInboxPage.openLatestResetEmailAfter(latestEmailIdBeforeRequest);
+      await this.demoInboxPage.openFirstResetLink();
 
-    await this.resetPasswordPage.expectLoaded();
-    await this.resetPasswordPage.updatePassword(newPassword);
+      const viewState = await this.resetPasswordPage.resolveViewState();
+      if (viewState === "form") {
+        await this.resetPasswordPage.updatePassword(newPassword);
+        return;
+      }
+    }
+
+    throw new Error("Unable to open a valid reset token from demo inbox after retrying");
   }
 
   async loginWithCredentials(username: string, password: string): Promise<void> {

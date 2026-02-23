@@ -11,6 +11,15 @@ export class ForgotPasswordPage extends BasePage {
 
   async requestReset(email: string): Promise<void> {
     await this.byTestId(TEST_IDS.auth.forgotEmail).fill(email);
+    const forgotResponse = this.page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        response.url().includes("/api/auth/forgot-password") &&
+        response.ok()
+    );
+
     await this.byTestId(TEST_IDS.auth.forgotSubmit).click();
+    await forgotResponse;
+    await expect(this.page.getByRole("link", { name: /open demo inbox/i })).toBeVisible();
   }
 }
