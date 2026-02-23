@@ -20,13 +20,13 @@ export default defineConfig({
     ["allure-playwright", { outputFolder: "allure-results" }]
   ],
   use: {
-    baseURL: process.env.APP_BASE_URL || "http://localhost:5173",
+    baseURL: process.env.APP_BASE_URL,
     actionTimeout: 15_000,
     navigationTimeout: 30_000,
     testIdAttribute: "data-testid",
-    trace: "on-first-retry",
-    screenshot: "only-on-failure",
-    video: "retain-on-failure"
+    trace: "on",
+    screenshot: "on",
+    video: "on"
   },
   projects: [
     {

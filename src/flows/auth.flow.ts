@@ -20,7 +20,9 @@ export class AuthFlow {
     await this.loginPage.open();
     await this.loginPage.login(username, password);
     await expect(this.page).toHaveURL(/\/home/);
+    await this.openNavMenuIfCollapsed();
     await expect(this.page.getByTestId(TEST_IDS.nav.profile)).toBeVisible();
+    await expect(this.page.getByTestId(TEST_IDS.nav.login)).toHaveCount(0);
   }
 
   async attemptLogin(username: string, password: string): Promise<void> {
@@ -30,5 +32,17 @@ export class AuthFlow {
 
   async expectLoginRejected(): Promise<void> {
     await this.loginPage.expectInvalidCredentialsMessage();
+  }
+
+  private async openNavMenuIfCollapsed(): Promise<void> {
+    const menuToggle = this.page.locator(".menu-toggle");
+    if (!(await menuToggle.isVisible())) {
+      return;
+    }
+
+    const expanded = await menuToggle.getAttribute("aria-expanded");
+    if (expanded !== "true") {
+      await menuToggle.click();
+    }
   }
 }

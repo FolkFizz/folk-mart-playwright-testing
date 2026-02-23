@@ -137,8 +137,7 @@ Copy `.env.example` to `.env` and set values:
 - Locator + `expect` only, no `waitForTimeout`
 - `data-testid` as primary selectors
 - retries: CI = 1, local = 0
-- trace: `on-first-retry`
-- screenshot/video: failure only
+- trace/screenshot/video: `on`
 - full parallel support + shard support
 - optional state reset via `/api/test/reset` when `ALLOW_TEST_CONTROL_API=true`
 

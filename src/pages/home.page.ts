@@ -10,7 +10,17 @@ export class HomePage extends BasePage {
   }
 
   async addFirstProductToCart(): Promise<void> {
-    await expect(this.byTestId(TEST_IDS.catalog.addToCartButton).first()).toBeVisible();
-    await this.byTestId(TEST_IDS.catalog.addToCartButton).first().click();
+    const addButton = this.page.locator(`[data-testid="${TEST_IDS.catalog.addToCartButton}"]:not([disabled])`).first();
+    const cartCountBadge = this.byTestId(TEST_IDS.nav.cart).locator(".cart-count");
+    const beforeText = (await cartCountBadge.textContent()) || "0";
+    const beforeCount = Number(beforeText.trim() || "0");
+
+    await expect(addButton).toBeVisible();
+    await addButton.click();
+
+    await expect.poll(async () => {
+      const nextText = (await cartCountBadge.textContent()) || "0";
+      return Number(nextText.trim() || "0");
+    }).toBeGreaterThan(beforeCount);
   }
 }
