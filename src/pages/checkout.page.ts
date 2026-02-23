@@ -33,6 +33,10 @@ export class CheckoutPage extends BasePage {
     await expect(this.byTestId(TEST_IDS.checkout.placeOrder)).toBeEnabled();
   }
 
+  async expectPlaceOrderDisabled(): Promise<void> {
+    await expect(this.byTestId(TEST_IDS.checkout.placeOrder)).toBeDisabled();
+  }
+
   async expectPaymentAuthorizationError(): Promise<void> {
     await expect(this.byTestId(TEST_IDS.checkout.cardNumberError)).toContainText(/authorize/i);
   }

@@ -15,7 +15,18 @@ export class CartPage extends BasePage {
   }
 
   async goCheckout(): Promise<void> {
-    await this.byTestId(TEST_IDS.cart.checkout).click();
+    const checkoutButton = this.byTestId(TEST_IDS.cart.checkout);
+    await expect(checkoutButton).toBeVisible();
+    await expect(checkoutButton).toBeEnabled();
+    await checkoutButton.scrollIntoViewIfNeeded();
+
+    try {
+      await checkoutButton.click({ timeout: 10_000 });
+    } catch {
+      // Fallback for small/mobile viewports where transient overlays intercept pointer events.
+      await checkoutButton.focus();
+      await checkoutButton.press("Enter");
+    }
   }
 
   async increaseQuantityOnce(): Promise<void> {

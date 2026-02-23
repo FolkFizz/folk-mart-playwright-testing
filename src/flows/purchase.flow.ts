@@ -55,8 +55,7 @@ export class PurchaseFlow {
     await this.cartPage.goCheckout();
 
     await this.checkoutPage.fillBilling(BILLING.name, USERS.standard.email, BILLING.address);
-    await this.checkoutPage.placeOrder();
-    await this.checkoutPage.expectPaymentAuthorizationError();
+    await this.checkoutPage.expectPlaceOrderDisabled();
   }
 
   async openInvoiceFromInbox(): Promise<void> {
