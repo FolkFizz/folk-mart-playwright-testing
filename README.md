@@ -24,18 +24,18 @@ Playwright test project for Folk Mart with strict QA standards:
 
 ## Latest Status Snapshot (February 23, 2026)
 
-### Full-suite execution
-- Command: `npx playwright test --workers=1`
-- Result: `124 total`, `115 passed`, `9 failed`
-- Fail cluster in this run: `pixel` project on state-sensitive checkout/orders paths when running the entire suite sequentially against shared real environment data
+### Critical suite execution
+- Command: `npx playwright test --grep "@critical"`
+- Result: `60 total`, `58 passed`, `2 failed`
+- Browser/device matrix executed: `chrome`, `webkit`, `iphone`, `pixel`
 
-### Focused suite re-runs completed in this iteration
-- `tests/e2e/auth/forgot-reset-flow.e2e.spec.ts`: `12 passed`
-- `tests/e2e/auth/login-flow.e2e.spec.ts`: `12 passed`
-- `tests/e2e/checkout/checkout-authorization-block.e2e.spec.ts`: `12 passed`
-- `tests/e2e/checkout/checkout-purchase-flow.e2e.spec.ts`: `12 passed`
-- `tests/integration/orders/order-created-via-api-visible-in-ui.integration.spec.ts`: `12 passed`
-- `tests/security/api/security-smoke.security.spec.ts`: `16 passed`
+### True Fail findings from latest run
+- `[chrome] CHECKOUTE2E-N01` (`checkout-authorization-block.e2e.spec.ts`): cart became empty before checkout block assertion.
+- `[pixel] CHECKOUTE2E-P01` (`checkout-purchase-flow.e2e.spec.ts`): timeout waiting for coupon API response (`/api/cart/coupon`).
+
+### Expected-fail behavior (known bug policy still active)
+- `FM-BUG-001` remains tracked for login/session behavior on WebKit-based projects.
+- Login-dependent tests on `webkit` and `iphone` still use expected-fail annotations, so report status is controlled and intentional.
 
 ## Coverage Inventory
 
@@ -193,6 +193,13 @@ npm run report:html
 npm run report:allure:generate
 npm run report:allure:open
 ```
+
+### Latest generated artifacts (local)
+- `playwright-report/index.html`
+- `allure-report/index.html`
+- `report-snapshots/playwright-report-summary.png`
+- `report-snapshots/allure-report-overview.png`
+- `artifacts/reports-*.zip`
 
 ## Known Bugs and Expected-Fail Policy
 
