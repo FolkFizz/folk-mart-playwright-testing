@@ -9,6 +9,7 @@ Playwright test project for Folk Mart with strict QA standards:
 
 ## Table of Contents
 - [Latest Status Snapshot (February 23, 2026)](#latest-status-snapshot-february-23-2026)
+- [Full Project Result (Allure Snapshot)](#full-project-result-allure-snapshot)
 - [Coverage Inventory](#coverage-inventory)
 - [Project Structure](#project-structure)
 - [QA Tag Taxonomy (Required)](#qa-tag-taxonomy-required)
@@ -36,6 +37,17 @@ Playwright test project for Folk Mart with strict QA standards:
 ### Expected-fail behavior (known bug policy still active)
 - `FM-BUG-001` remains tracked for login/session behavior on WebKit-based projects.
 - Login-dependent tests on `webkit` and `iphone` still use expected-fail annotations, so report status is controlled and intentional.
+
+## Full Project Result (Allure Snapshot)
+
+- Command: `npx playwright test`
+- Allure total: `124`
+- Passed: `109`
+- Failed: `15`
+- Broken: `0`
+- Skipped: `0`
+
+![Allure Overall Summary](docs/images/allure-overall-summary.png)
 
 ## Coverage Inventory
 
@@ -197,6 +209,7 @@ npm run report:allure:open
 ### Latest generated artifacts (local)
 - `playwright-report/index.html`
 - `allure-report/index.html`
+- `docs/images/allure-overall-summary.png`
 - `report-snapshots/playwright-report-summary.png`
 - `report-snapshots/allure-report-overview.png`
 - `artifacts/reports-*.zip`
