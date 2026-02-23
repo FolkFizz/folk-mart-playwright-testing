@@ -1,4 +1,5 @@
-import { test } from "../../../src/fixtures/test-fixtures";
+import { expect, test } from "../../../src/fixtures/test-fixtures";
+import { USERS } from "../../../src/data/users";
 import { expectNoSeriousA11yViolations } from "../../../src/support/a11y";
 
 test.describe("CRITICAL PAGES :: A11y", () => {
@@ -37,6 +38,29 @@ test.describe("CRITICAL PAGES :: A11y", () => {
       async ({ authFlow, profilePage, page }) => {
         await authFlow.loginAsStandardUser();
         await profilePage.openOrdersTab();
+        await expectNoSeriousA11yViolations(page);
+      }
+    );
+  });
+
+  test.describe("negative cases", () => {
+    test(
+      "A11Y-N01: invalid login error state has no serious accessibility violations @a11y @regression @safe @auth",
+      async ({ loginPage, page }) => {
+        await loginPage.open();
+        await loginPage.login(USERS.invalid.username, USERS.invalid.password);
+        await loginPage.expectInvalidCredentialsMessage();
+        await expectNoSeriousA11yViolations(page);
+      }
+    );
+  });
+
+  test.describe("edge cases", () => {
+    test(
+      "A11Y-E01: guard redirect to login remains accessible @a11y @regression @safe @auth",
+      async ({ page }) => {
+        await page.goto("/profile?tab=orders", { waitUntil: "domcontentloaded" });
+        await expect(page).toHaveURL(/\/login/);
         await expectNoSeriousA11yViolations(page);
       }
     );

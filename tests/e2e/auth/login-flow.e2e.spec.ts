@@ -20,4 +20,13 @@ test.describe("AUTH :: E2E", () => {
       }
     );
   });
+
+  test.describe("edge cases", () => {
+    test(
+      "AUTHE2E-E01: username with surrounding spaces can still login @e2e @regression @safe @auth",
+      async ({ authFlow }) => {
+        await authFlow.loginWithCredentials(` ${USERS.standard.username} `, USERS.standard.password);
+      }
+    );
+  });
 });

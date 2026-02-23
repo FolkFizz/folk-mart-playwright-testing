@@ -21,4 +21,8 @@ export class CartPage extends BasePage {
   async increaseQuantityOnce(): Promise<void> {
     await this.byTestId(TEST_IDS.cart.qtyIncrease).first().click();
   }
+
+  async expectHasItems(): Promise<void> {
+    await expect(this.page.locator("[data-testid^='cart-item-']")).toHaveCount(1);
+  }
 }

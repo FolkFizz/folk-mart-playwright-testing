@@ -7,6 +7,7 @@ export const COUPONS = {
 
 export const PAYMENT = {
   approvedCardNumber: "4242 4242 4242 4242",
+  approvedCardNumberCompact: "4242424242424242",
   declinedCardNumber: "5555 5555 5555 5555",
   insufficientFundsCardNumber: "4000 0000 0000 0000",
   expMonth: "12",
@@ -23,7 +24,8 @@ export const BILLING = {
 } as const;
 
 export const PASSWORDS = {
-  resetTarget: "user123456"
+  resetTarget: "user123456",
+  minimumAccepted: "Abc123"
 } as const;
 
 export const PRODUCT_IDS = {

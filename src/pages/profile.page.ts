@@ -9,6 +9,11 @@ export class ProfilePage extends BasePage {
     await expect(this.byTestId(TEST_IDS.profile.tabOrders)).toBeVisible();
   }
 
+  async openOrdersTabWithInvoice(orderId: string): Promise<void> {
+    await this.goto(`/profile?tab=orders&invoice=${encodeURIComponent(orderId)}`);
+    await expect(this.byTestId(TEST_IDS.profile.tabOrders)).toBeVisible();
+  }
+
   async openFirstInvoice(): Promise<void> {
     await expect(this.page.getByRole("button", { name: "Invoice" }).first()).toBeVisible();
     await this.page.getByRole("button", { name: "Invoice" }).first().click();
@@ -26,5 +31,9 @@ export class ProfilePage extends BasePage {
 
   async expectInvoiceVisible(): Promise<void> {
     await expect(this.byTestId(TEST_IDS.profile.invoicePanel)).toBeVisible();
+  }
+
+  async expectInvoiceHidden(): Promise<void> {
+    await expect(this.page.getByTestId(TEST_IDS.profile.invoicePanel)).toHaveCount(0);
   }
 }

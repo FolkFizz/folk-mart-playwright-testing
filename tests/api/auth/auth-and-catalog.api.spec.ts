@@ -65,4 +65,16 @@ test.describe("AUTH-CATALOG :: API", () => {
       }
     );
   });
+
+  test.describe("edge cases", () => {
+    test(
+      "CATALOGAPI-E01: reversed minPrice/maxPrice still returns a valid response @api @regression @safe @catalog",
+      async ({ apiClient }) => {
+        const payload = await apiClient.listProducts("minPrice=120&maxPrice=10&limit=5");
+
+        expect(payload.ok).toBeTruthy();
+        expect(Array.isArray(payload.products)).toBeTruthy();
+      }
+    );
+  });
 });

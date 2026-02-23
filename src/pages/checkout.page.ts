@@ -29,7 +29,19 @@ export class CheckoutPage extends BasePage {
     await this.byTestId(TEST_IDS.checkout.placeOrder).click();
   }
 
+  async expectPlaceOrderEnabled(): Promise<void> {
+    await expect(this.byTestId(TEST_IDS.checkout.placeOrder)).toBeEnabled();
+  }
+
   async expectPaymentAuthorizationError(): Promise<void> {
     await expect(this.byTestId(TEST_IDS.checkout.cardNumberError)).toContainText(/authorize/i);
+  }
+
+  async expectCardNumberErrorContains(text: RegExp): Promise<void> {
+    await expect(this.byTestId(TEST_IDS.checkout.cardNumberError)).toContainText(text);
+  }
+
+  async expectExpiryErrorContains(text: RegExp): Promise<void> {
+    await expect(this.byTestId(TEST_IDS.checkout.cardExpiryError)).toContainText(text);
   }
 }

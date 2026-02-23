@@ -50,4 +50,17 @@ test.describe("SECURITY SMOKE :: API", () => {
       }
     );
   });
+
+  test.describe("edge cases", () => {
+    test(
+      "SECAPI-E01: request without Origin header is accepted for server clients @security @regression @safe @catalog",
+      async ({ apiClient }) => {
+        const response = await apiClient.getResponse("/api/products");
+
+        expect(response.status()).toBe(200);
+        const payload = await response.json();
+        expect(payload.ok).toBeTruthy();
+      }
+    );
+  });
 });

@@ -20,6 +20,10 @@ export class ProductPage extends BasePage {
     await this.byTestId(TEST_IDS.product.add).click();
   }
 
+  async expectAddDisabled(): Promise<void> {
+    await expect(this.byTestId(TEST_IDS.product.add)).toBeDisabled();
+  }
+
   async expectStockLimitError(): Promise<void> {
     await expect(this.byTestId(TEST_IDS.shared.flashMessage)).toContainText(/stock limit/i);
   }
