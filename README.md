@@ -13,7 +13,7 @@ Playwright test project for Folk Mart with a strict QA standard:
 src/
   api/            # API client wrapper
   config/         # env parsing
-  data/           # business data, tags, routes
+  data/           # business data, routes
   fixtures/       # shared typed fixtures
   flows/          # business flows used by tests
   pages/          # page objects (POM)
@@ -52,15 +52,9 @@ tests/
 - `@checkout`
 - `@orders`
 
-### 5) Case Style + Ownership
-- `@positive`
-- `@negative`
-- `@edge`
-- `@owner-folk`
-
 Example title:
 
-`Customer completes purchase flow @e2e @critical @positive @destructive @checkout @orders @owner-folk`
+`Customer completes purchase flow @e2e @critical @destructive @checkout @orders`
 
 ## Browser/Device Matrix
 
@@ -93,9 +87,6 @@ npm run test:api
 npm run test:integration
 npm run test:security
 npm run test:a11y
-npm run test:positive
-npm run test:negative
-npm run test:edge
 ```
 
 ### Run by browser/device

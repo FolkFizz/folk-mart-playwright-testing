@@ -1,18 +1,10 @@
 import { expect, test } from "../../../src/fixtures/test-fixtures";
-import { TAGS, tags } from "../../../src/data/tags";
 import { USERS } from "../../../src/data/users";
 
 test.describe("SECURITY SMOKE :: API", () => {
   test.describe("negative cases", () => {
     test(
-      `SECAPI-N01: CORS rejects requests from unknown origin ${tags(
-        TAGS.testType.security,
-        TAGS.executionScope.critical,
-        TAGS.caseStyle.negative,
-        TAGS.dataImpact.safe,
-        TAGS.businessArea.catalog,
-        TAGS.owner.folk
-      )}`,
+      "SECAPI-N01: CORS rejects requests from unknown origin @security @critical @safe @catalog",
       async ({ apiClient }) => {
         const response = await apiClient.getResponse("/api/products", {
           Origin: "https://evil.example.com"
@@ -25,14 +17,7 @@ test.describe("SECURITY SMOKE :: API", () => {
     );
 
     test(
-      `SECAPI-N02: private orders API requires authentication ${tags(
-        TAGS.testType.security,
-        TAGS.executionScope.critical,
-        TAGS.caseStyle.negative,
-        TAGS.dataImpact.safe,
-        TAGS.businessArea.orders,
-        TAGS.owner.folk
-      )}`,
+      "SECAPI-N02: private orders API requires authentication @security @critical @safe @orders",
       async ({ apiClient }) => {
         const payload = await apiClient.get("/api/orders", 401);
 
@@ -44,15 +29,7 @@ test.describe("SECURITY SMOKE :: API", () => {
 
   test.describe("positive cases", () => {
     test(
-      `SECAPI-P01: security headers and session cookie flags are present ${tags(
-        TAGS.testType.security,
-        TAGS.executionScope.smoke,
-        TAGS.executionScope.critical,
-        TAGS.caseStyle.positive,
-        TAGS.dataImpact.safe,
-        TAGS.businessArea.auth,
-        TAGS.owner.folk
-      )}`,
+      "SECAPI-P01: security headers and session cookie flags are present @security @smoke @critical @safe @auth",
       async ({ apiClient }) => {
         const health = await apiClient.getResponse("/health");
 

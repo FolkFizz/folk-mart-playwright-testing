@@ -1,7 +1,6 @@
 import { expect, test } from "../../../src/fixtures/test-fixtures";
 import { API_QUERIES } from "../../../src/data/api-queries";
 import { COUPONS } from "../../../src/data/business";
-import { TAGS, tags } from "../../../src/data/tags";
 import { USERS } from "../../../src/data/users";
 import { resetStateIfEnabled } from "../../../src/support/state-control";
 
@@ -12,14 +11,7 @@ test.beforeEach(async ({ apiClient }) => {
 test.describe("AUTH-CATALOG :: API", () => {
   test.describe("positive cases", () => {
     test(
-      `CATALOGAPI-P01: products endpoint returns filtered and sorted list ${tags(
-        TAGS.testType.api,
-        TAGS.executionScope.critical,
-        TAGS.caseStyle.positive,
-        TAGS.dataImpact.safe,
-        TAGS.businessArea.catalog,
-        TAGS.owner.folk
-      )}`,
+      "CATALOGAPI-P01: products endpoint returns filtered and sorted list @api @critical @safe @catalog",
       async ({ apiClient }) => {
         const payload = await apiClient.listProducts(API_QUERIES.productsSmoke);
 
@@ -30,15 +22,7 @@ test.describe("AUTH-CATALOG :: API", () => {
     );
 
     test(
-      `AUTHAPI-P01: login succeeds with valid credentials ${tags(
-        TAGS.testType.api,
-        TAGS.executionScope.smoke,
-        TAGS.executionScope.critical,
-        TAGS.caseStyle.positive,
-        TAGS.dataImpact.safe,
-        TAGS.businessArea.auth,
-        TAGS.owner.folk
-      )}`,
+      "AUTHAPI-P01: login succeeds with valid credentials @api @smoke @critical @safe @auth",
       async ({ apiClient }) => {
         const payload = await apiClient.login(USERS.standard.username, USERS.standard.password);
 
@@ -50,14 +34,7 @@ test.describe("AUTH-CATALOG :: API", () => {
 
   test.describe("negative cases", () => {
     test(
-      `AUTHAPI-N01: login fails with invalid credentials ${tags(
-        TAGS.testType.api,
-        TAGS.executionScope.critical,
-        TAGS.caseStyle.negative,
-        TAGS.dataImpact.safe,
-        TAGS.businessArea.auth,
-        TAGS.owner.folk
-      )}`,
+      "AUTHAPI-N01: login fails with invalid credentials @api @critical @safe @auth",
       async ({ apiClient }) => {
         const payload = await apiClient.login(USERS.invalid.username, USERS.invalid.password, 401);
 
@@ -67,14 +44,7 @@ test.describe("AUTH-CATALOG :: API", () => {
     );
 
     test(
-      `CARTAPI-N01: invalid coupon code is rejected ${tags(
-        TAGS.testType.api,
-        TAGS.executionScope.regression,
-        TAGS.caseStyle.negative,
-        TAGS.dataImpact.safe,
-        TAGS.businessArea.cart,
-        TAGS.owner.folk
-      )}`,
+      "CARTAPI-N01: invalid coupon code is rejected @api @regression @safe @cart",
       async ({ apiClient }) => {
         await apiClient.login(USERS.standard.username, USERS.standard.password);
         await apiClient.addCartItem(1, 1);
@@ -86,14 +56,7 @@ test.describe("AUTH-CATALOG :: API", () => {
     );
 
     test(
-      `ORDERAPI-N01: orders endpoint rejects unauthenticated access ${tags(
-        TAGS.testType.api,
-        TAGS.executionScope.critical,
-        TAGS.caseStyle.negative,
-        TAGS.dataImpact.safe,
-        TAGS.businessArea.orders,
-        TAGS.owner.folk
-      )}`,
+      "ORDERAPI-N01: orders endpoint rejects unauthenticated access @api @critical @safe @orders",
       async ({ apiClient }) => {
         const payload = await apiClient.get("/api/orders", 401);
 

@@ -1,5 +1,4 @@
 import { test } from "../../../src/fixtures/test-fixtures";
-import { TAGS, tags } from "../../../src/data/tags";
 import { resetStateIfEnabled } from "../../../src/support/state-control";
 
 test.beforeEach(async ({ apiClient }) => {
@@ -9,18 +8,7 @@ test.beforeEach(async ({ apiClient }) => {
 test.describe("CHECKOUT :: E2E", () => {
   test.describe("positive cases", () => {
     test(
-      `CHECKOUTE2E-P01: customer completes checkout and opens invoice from inbox ${tags(
-        TAGS.testType.e2e,
-        TAGS.executionScope.critical,
-        TAGS.caseStyle.positive,
-        TAGS.dataImpact.destructive,
-        TAGS.dataImpact.seeded,
-        TAGS.businessArea.auth,
-        TAGS.businessArea.cart,
-        TAGS.businessArea.checkout,
-        TAGS.businessArea.orders,
-        TAGS.owner.folk
-      )}`,
+      "CHECKOUTE2E-P01: customer completes checkout and opens invoice from inbox @e2e @critical @destructive @seeded @auth @cart @checkout @orders",
       async ({ authFlow, purchaseFlow }) => {
         await authFlow.loginAsStandardUser();
         await purchaseFlow.completeHappyPathCheckout();
