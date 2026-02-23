@@ -1,27 +1,60 @@
 name: Playwright Tests
+
 on:
   push:
-    branches: [ main, master ]
+    branches: [main]
   pull_request:
-    branches: [ main, master ]
+    branches: [main]
+  workflow_dispatch:
+
 jobs:
   test:
-    timeout-minutes: 60
+    name: ${{ matrix.project }} | shard ${{ matrix.shard }}
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chrome-desktop, webkit-desktop, iphone-14, pixel-7]
+        shard: ["1/2", "2/2"]
+
+    env:
+      APP_BASE_URL: ${{ vars.APP_BASE_URL }}
+      API_BASE_URL: ${{ vars.API_BASE_URL }}
+      TEST_API_KEY: ${{ secrets.TEST_API_KEY }}
+      ALLOW_TEST_CONTROL_API: ${{ vars.ALLOW_TEST_CONTROL_API }}
+      TEST_USER_USERNAME: ${{ vars.TEST_USER_USERNAME }}
+      TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+      TEST_USER_EMAIL: ${{ vars.TEST_USER_EMAIL }}
+      TEST_COUPON_CODE: ${{ vars.TEST_COUPON_CODE }}
+
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-    - name: Run Playwright tests
-      run: npx playwright test
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium webkit chrome
+
+      - name: Run critical tests
+        run: npx playwright test --grep "@critical" --project="${{ matrix.project }}" --shard="${{ matrix.shard }}"
+
+      - name: Upload debug artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-${{ matrix.project }}-${{ matrix.shard }}
+          path: |
+            test-results/
+            playwright-report/
+            allure-results/
+          if-no-files-found: ignore
+          retention-days: 14
