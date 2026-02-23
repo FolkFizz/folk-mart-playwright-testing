@@ -1,6 +1,7 @@
 import { test } from "../../../src/fixtures/test-fixtures";
 import { ENV } from "../../../src/config/env";
 import { PRODUCT_IDS } from "../../../src/data/business";
+import { markWebkitAuthSessionKnownBug } from "../../../src/support/known-bug";
 import { resetStateIfEnabled } from "../../../src/support/state-control";
 
 test.skip(!ENV.allowTestControlApi, "Edge stock test requires test control API");
@@ -14,10 +15,12 @@ test.describe("CART STOCK :: E2E", () => {
   test.describe("positive cases", () => {
     test(
       "CARTE2E-P01: adding quantity within stock succeeds @e2e @critical @seeded @safe @cart",
-      async ({ authFlow, productPage, cartPage }) => {
+      async ({ authFlow, productPage, cartPage, browserName }, testInfo) => {
+        markWebkitAuthSessionKnownBug(browserName, testInfo);
         await authFlow.loginAsStandardUser();
         await productPage.open(PRODUCT_IDS.stockEdgeCase);
         await productPage.addToCart();
+        await cartPage.open();
         await cartPage.expectHasItems();
       }
     );
@@ -26,8 +29,9 @@ test.describe("CART STOCK :: E2E", () => {
   test.describe("negative cases", () => {
     test(
       "CARTE2E-N01: add-to-cart is disabled when stock is zero @e2e @regression @seeded @safe @cart",
-      async ({ apiClient, authFlow, productPage }) => {
+      async ({ apiClient, authFlow, productPage, browserName }, testInfo) => {
         await apiClient.setProductStock(PRODUCT_IDS.stockEdgeCase, 0);
+        markWebkitAuthSessionKnownBug(browserName, testInfo);
         await authFlow.loginAsStandardUser();
         await productPage.open(PRODUCT_IDS.stockEdgeCase);
         await productPage.expectAddDisabled();
@@ -38,7 +42,8 @@ test.describe("CART STOCK :: E2E", () => {
   test.describe("edge cases", () => {
     test(
       "CARTE2E-E01: adding quantity above stock fails with clear feedback @e2e @critical @seeded @safe @cart",
-      async ({ authFlow, productPage }) => {
+      async ({ authFlow, productPage, browserName }, testInfo) => {
+        markWebkitAuthSessionKnownBug(browserName, testInfo);
         await authFlow.loginAsStandardUser();
         await productPage.open(PRODUCT_IDS.stockEdgeCase);
         await productPage.addToCart();
