@@ -58,10 +58,10 @@ Example title:
 
 ## Browser/Device Matrix
 
-- `chrome-desktop` (channel `chrome`)
-- `webkit-desktop`
-- `iphone-14`
-- `pixel-7`
+- `chrome` (Desktop Chrome, channel `chrome`)
+- `webkit` (Desktop Safari/WebKit)
+- `iphone` (iPhone 14)
+- `pixel` (Pixel 7)
 
 ## Install
 
