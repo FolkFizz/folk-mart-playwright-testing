@@ -2,6 +2,7 @@ import { BackendApiClient } from "../../../src/api/backend-api.client";
 import { test } from "../../../src/fixtures/test-fixtures";
 import { BILLING, PAYMENT } from "../../../src/data/business";
 import { USERS } from "../../../src/data/users";
+import { markWebkitAuthSessionKnownBug } from "../../../src/support/known-bug";
 import { resetStateIfEnabled } from "../../../src/support/state-control";
 
 test.beforeEach(async ({ apiClient }) => {
@@ -33,7 +34,8 @@ test.describe("ORDERS :: INTEGRATION", () => {
   test.describe("positive cases", () => {
     test(
       "ORDERSINT-P01: order created via API is visible in profile invoice UI @integration @critical @destructive @seeded @orders",
-      async ({ apiClient, authFlow, profilePage }) => {
+      async ({ apiClient, authFlow, profilePage, browserName }, testInfo) => {
+        markWebkitAuthSessionKnownBug(browserName, testInfo);
         const orderId = await createOrderViaApi(apiClient);
 
         await authFlow.loginAsStandardUser();
@@ -48,7 +50,8 @@ test.describe("ORDERS :: INTEGRATION", () => {
   test.describe("negative cases", () => {
     test(
       "ORDERSINT-N01: invalid invoice deep-link does not open invoice panel @integration @regression @safe @orders",
-      async ({ authFlow, profilePage }) => {
+      async ({ authFlow, profilePage, browserName }, testInfo) => {
+        markWebkitAuthSessionKnownBug(browserName, testInfo);
         await authFlow.loginAsStandardUser();
         await profilePage.openOrdersTabWithInvoice("ORD-UNKNOWN-INVOICE");
         await profilePage.expectInvoiceHidden();
@@ -59,7 +62,8 @@ test.describe("ORDERS :: INTEGRATION", () => {
   test.describe("edge cases", () => {
     test(
       "ORDERSINT-E01: invoice deep-link opens panel when invoice id exists @integration @critical @destructive @seeded @orders",
-      async ({ apiClient, authFlow, profilePage }) => {
+      async ({ apiClient, authFlow, profilePage, browserName }, testInfo) => {
+        markWebkitAuthSessionKnownBug(browserName, testInfo);
         const orderId = await createOrderViaApi(apiClient);
 
         await authFlow.loginAsStandardUser();
