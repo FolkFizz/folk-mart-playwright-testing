@@ -35,11 +35,29 @@ Application URL: `https://folk-mart-1.onrender.com`
 
 ### Detected Bugs From This Run (29 Failed Cases)
 
-| Project | Test case | Observed failure | Detected bug | Recommended fix |
-|---|---|---|---|---|
-| `webkit` (14 fails) | `A11Y-P02`, `A11Y-P03`, `A11Y-P04`, `AUTHE2E-P01`, `AUTHE2E-E01`, `CHECKOUTE2E-P01/N01/E01` (authorization), `CHECKOUTE2E-P01/N01/E01` (purchase), `ORDERSINT-P01/N01/E01` | Login/session-dependent flows fail in sequence; protected pages and downstream checkout/order flows become unreachable or unstable after auth step | `FM-BUG-004` session persistence or auth-state propagation instability on WebKit matrix | Validate cookie/session persistence (Set-Cookie flags, SameSite, secure, domain/path), add deterministic post-login session check endpoint, and harden auth guard handling before dependent navigation |
-| `iphone` (14 fails) | `A11Y-P02`, `A11Y-P03`, `A11Y-P04`, `AUTHE2E-P01`, `AUTHE2E-E01`, `CHECKOUTE2E-P01/N01/E01` (authorization), `CHECKOUTE2E-P01/N01/E01` (purchase), `ORDERSINT-P01/N01/E01` | Same failure pattern as WebKit desktop across auth-dependent and order-dependent journeys | `FM-BUG-005` mobile WebKit auth/session continuity defect (same family as FM-BUG-004) | Fix auth/session continuity for mobile WebKit, then re-verify full flow chain (`auth -> cart -> checkout -> orders`) with project-specific diagnostics enabled |
-| `pixel` (1 fail) | `CHECKOUTE2E-E01` (`tests/e2e/checkout/purchase.e2e.spec.ts:35`) | Invalid-expiry validation path fails only on Pixel during checkout edge flow | `FM-BUG-006` checkout form readiness/state transition race on Pixel | Add explicit readiness checks before billing/payment fill, verify checkout step transition completion, and stabilize edge validation assertion timing |
+| Bug ID | Projects / Failed cases | Affected flow groups | Recommended fix |
+|---|---|---|---|
+| `FM-BUG-004` | `webkit` / `14` | `a11y`, `auth`, `checkout`, `orders` | Stabilize WebKit session persistence after login (cookie flags + deterministic session check endpoint) before navigating to protected routes |
+| `FM-BUG-005` | `iphone` / `14` | `a11y`, `auth`, `checkout`, `orders` | Apply the same session-continuity hardening for mobile WebKit and re-verify full chain (`auth -> cart -> checkout -> orders`) |
+| `FM-BUG-006` | `pixel` / `1` | `checkout edge` | Add explicit checkout form readiness/assertion synchronization before invalid-expiry validation |
+
+<details>
+<summary><strong>Failed Case Map (Expanded)</strong></summary>
+
+**`FM-BUG-004` (`webkit`, 14 fails)**  
+`A11Y-P02`, `A11Y-P03`, `A11Y-P04`, `AUTHE2E-P01`, `AUTHE2E-E01`,  
+`CHECKOUTE2E-P01/N01/E01` (authorization), `CHECKOUTE2E-P01/N01/E01` (purchase),  
+`ORDERSINT-P01/N01/E01`
+
+**`FM-BUG-005` (`iphone`, 14 fails)**  
+`A11Y-P02`, `A11Y-P03`, `A11Y-P04`, `AUTHE2E-P01`, `AUTHE2E-E01`,  
+`CHECKOUTE2E-P01/N01/E01` (authorization), `CHECKOUTE2E-P01/N01/E01` (purchase),  
+`ORDERSINT-P01/N01/E01`
+
+**`FM-BUG-006` (`pixel`, 1 fail)**  
+`CHECKOUTE2E-E01` (`tests/e2e/checkout/purchase.e2e.spec.ts:35`)
+
+</details>
 
 
 ## Allure Summary Image
