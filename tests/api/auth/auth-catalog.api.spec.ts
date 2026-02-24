@@ -1,12 +1,8 @@
 import { expect, test } from "../../../src/fixtures/test-fixtures";
+import { API_MESSAGE_PATTERNS } from "../../../src/data/assertions";
 import { API_QUERIES } from "../../../src/data/api-queries";
 import { COUPONS } from "../../../src/data/business";
 import { USERS } from "../../../src/data/users";
-import { resetStateIfEnabled } from "../../../src/support/state-control";
-
-test.beforeEach(async ({ apiClient }) => {
-  await resetStateIfEnabled(apiClient);
-});
 
 test.describe("AUTH-CATALOG :: API", () => {
   test.describe("positive cases", () => {
@@ -39,7 +35,7 @@ test.describe("AUTH-CATALOG :: API", () => {
         const payload = await apiClient.login(USERS.invalid.username, USERS.invalid.password, 401);
 
         expect(payload.ok).toBeFalsy();
-        expect(String(payload.message)).toMatch(/invalid/i);
+        expect(String(payload.message)).toMatch(API_MESSAGE_PATTERNS.invalidCredentials);
       }
     );
 
@@ -52,7 +48,7 @@ test.describe("AUTH-CATALOG :: API", () => {
         const payload = await apiClient.applyCoupon(COUPONS.invalid, 404);
 
         expect(payload.ok).toBeFalsy();
-        expect(String(payload.message)).toMatch(/coupon/i);
+        expect(String(payload.message)).toMatch(API_MESSAGE_PATTERNS.couponError);
       }
     );
 
@@ -62,7 +58,7 @@ test.describe("AUTH-CATALOG :: API", () => {
         const payload = await apiClient.get("/api/orders", 401);
 
         expect(payload.ok).toBeFalsy();
-        expect(String(payload.message)).toMatch(/authentication required/i);
+        expect(String(payload.message)).toMatch(API_MESSAGE_PATTERNS.authenticationRequired);
       }
     );
   });
@@ -71,7 +67,7 @@ test.describe("AUTH-CATALOG :: API", () => {
     test(
       "CATALOGAPI-E01: reversed minPrice/maxPrice still returns a valid response @api @regression @safe @catalog",
       async ({ apiClient }) => {
-        const payload = await apiClient.listProducts("minPrice=120&maxPrice=10&limit=5");
+        const payload = await apiClient.listProducts(API_QUERIES.productsReversedPriceRange);
 
         expect(payload.ok).toBeTruthy();
         expect(Array.isArray(payload.products)).toBeTruthy();

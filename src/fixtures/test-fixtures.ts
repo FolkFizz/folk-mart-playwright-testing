@@ -2,6 +2,7 @@ import { test as base, expect, request as playwrightRequest } from "@playwright/
 import { BackendApiClient } from "../api/backend-api.client";
 import { ENV } from "../config/env";
 import { AuthFlow } from "../flows/auth.flow";
+import { OrdersIntegrationFlow } from "../flows/orders-integration.flow";
 import { PasswordResetFlow } from "../flows/password-reset.flow";
 import { PurchaseFlow } from "../flows/purchase.flow";
 import { CartPage } from "../pages/cart.page";
@@ -15,9 +16,10 @@ import { OrderSuccessPage } from "../pages/order-success.page";
 import { ProductPage } from "../pages/product.page";
 import { ProfilePage } from "../pages/profile.page";
 import { ResetPasswordPage } from "../pages/reset-password.page";
+import { resetStateIfEnabled } from "../support/state-control";
 import { createUniqueUserSeed, TestUserSeed } from "../support/test-data-factory";
 
-type Fixtures = {
+type TestFixtures = {
   apiClient: BackendApiClient;
   loginPage: LoginPage;
   homePage: HomePage;
@@ -31,12 +33,50 @@ type Fixtures = {
   forgotPasswordPage: ForgotPasswordPage;
   resetPasswordPage: ResetPasswordPage;
   authFlow: AuthFlow;
+  ordersIntegrationFlow: OrdersIntegrationFlow;
   purchaseFlow: PurchaseFlow;
   passwordResetFlow: PasswordResetFlow;
   uniqueUserSeed: TestUserSeed;
+  _resetStockAtFileStart: void;
 };
 
-export const test = base.extend<Fixtures>({
+type WorkerFixtures = {
+  _stockResetClient: BackendApiClient;
+  _stockResetByFileRegistry: Set<string>;
+};
+
+export const test = base.extend<TestFixtures, WorkerFixtures>({
+  _stockResetClient: [
+    async ({}, use) => {
+      const context = await playwrightRequest.newContext({
+        baseURL: ENV.apiBaseUrl,
+        ignoreHTTPSErrors: true
+      });
+      await use(new BackendApiClient(context));
+      await context.dispose();
+    },
+    { scope: "worker" }
+  ],
+
+  _stockResetByFileRegistry: [
+    async ({}, use) => {
+      await use(new Set<string>());
+    },
+    { scope: "worker" }
+  ],
+
+  _resetStockAtFileStart: [
+    async ({ _stockResetClient, _stockResetByFileRegistry }, use, testInfo) => {
+      const scopeKey = `${testInfo.project.name}:${testInfo.file}`;
+      if (!_stockResetByFileRegistry.has(scopeKey)) {
+        await resetStateIfEnabled(_stockResetClient);
+        _stockResetByFileRegistry.add(scopeKey);
+      }
+      await use();
+    },
+    { auto: true }
+  ],
+
   apiClient: async ({}, use) => {
     const context = await playwrightRequest.newContext({
       baseURL: ENV.apiBaseUrl,
@@ -59,6 +99,8 @@ export const test = base.extend<Fixtures>({
   resetPasswordPage: async ({ page }, use) => use(new ResetPasswordPage(page)),
 
   authFlow: async ({ page, loginPage }, use) => use(new AuthFlow(page, loginPage)),
+  ordersIntegrationFlow: async ({ apiClient, authFlow, profilePage }, use) =>
+    use(new OrdersIntegrationFlow(apiClient, authFlow, profilePage)),
   purchaseFlow: async (
     { homePage, cartPage, checkoutPage, orderSuccessPage, inboxPage, profilePage },
     use

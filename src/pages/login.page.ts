@@ -1,4 +1,5 @@
 import { expect } from "@playwright/test";
+import { UI_MESSAGE_PATTERNS } from "../data/assertions";
 import { ROUTES } from "../data/routes";
 import { TEST_IDS } from "../support/test-ids";
 import { BasePage } from "./base.page";
@@ -16,6 +17,8 @@ export class LoginPage extends BasePage {
   }
 
   async expectInvalidCredentialsMessage(): Promise<void> {
-    await expect(this.byTestId(TEST_IDS.shared.flashMessage)).toContainText(/invalid/i);
+    await expect(this.byTestId(TEST_IDS.shared.flashMessage)).toContainText(
+      UI_MESSAGE_PATTERNS.invalidCredentials
+    );
   }
 }

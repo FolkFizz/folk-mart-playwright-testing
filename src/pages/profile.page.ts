@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-import { ROUTES } from "../data/routes";
+import { ROUTES, ROUTE_BUILDERS } from "../data/routes";
 import { TEST_IDS } from "../support/test-ids";
 import { BasePage } from "./base.page";
 
@@ -10,7 +10,7 @@ export class ProfilePage extends BasePage {
   }
 
   async openOrdersTabWithInvoice(orderId: string): Promise<void> {
-    await this.goto(`/profile?tab=orders&invoice=${encodeURIComponent(orderId)}`);
+    await this.goto(ROUTE_BUILDERS.profileOrdersWithInvoice(orderId));
     await expect(this.byTestId(TEST_IDS.profile.tabOrders)).toBeVisible();
   }
 

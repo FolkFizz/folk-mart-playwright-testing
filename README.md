@@ -1,68 +1,66 @@
 # Folk Mart Playwright Testing
 
-Playwright test project for Folk Mart with strict QA standards:
-- POM + Flow layer only
-- clean spec files (no business constants in test body)
-- tag-driven execution
-- critical-first coverage
-- reproducible reports (HTML + Allure)
+Playwright-based test project for the Folk Mart web application.
+
+Application URL: `https://folk-mart-1.onrender.com`
 
 ## Table of Contents
-- [Latest Status Snapshot (February 23, 2026)](#latest-status-snapshot-february-23-2026)
-- [Full Project Result (Allure Snapshot)](#full-project-result-allure-snapshot)
+- [Project Overview](#project-overview)
+- [Latest Execution Snapshot (February 24, 2026)](#latest-execution-snapshot-february-24-2026)
+- [Allure Summary Image](#allure-summary-image)
 - [Coverage Inventory](#coverage-inventory)
 - [Project Structure](#project-structure)
-- [QA Tag Taxonomy (Required)](#qa-tag-taxonomy-required)
+- [Tag Model](#tag-model)
 - [Browser and Device Matrix](#browser-and-device-matrix)
-- [Install](#install)
-- [Environment Profiles](#environment-profiles)
-- [Run Tests](#run-tests)
+- [Installation](#installation)
+- [Environment Configuration](#environment-configuration)
+- [Run Commands](#run-commands)
 - [Reports](#reports)
-- [Known Bugs and Expected-Fail Policy](#known-bugs-and-expected-fail-policy)
-- [Flaky Controls](#flaky-controls)
-- [Recent Change Summary](#recent-change-summary)
-- [Test Strategy (1-page)](#test-strategy-1-page)
+- [CI Execution (Manual Only)](#ci-execution-manual-only)
+- [Failure Semantics](#failure-semantics)
+- [Flakiness Controls](#flakiness-controls)
+- [Test Strategy (One Page)](#test-strategy-one-page)
 
-## Latest Status Snapshot (February 23, 2026)
+## Project Overview
 
-### Critical suite execution
-- Command: `npx playwright test --grep "@critical"`
-- Result: `60 total`, `58 passed`, `2 failed`
-- Browser/device matrix executed: `chrome`, `webkit`, `iphone`, `pixel`
+- Test layers: `E2E`, `API`, `Integration`, `Security smoke`, `A11y`
+- Design approach: `POM + Flow` layers with centralized test data
+- Execution style: tag-based selection, browser matrix, shard-ready commands
 
-### True Fail findings from latest run
-- `[chrome] CHECKOUTE2E-N01` (`checkout-authorization-block.e2e.spec.ts`): cart became empty before checkout block assertion.
-- `[pixel] CHECKOUTE2E-P01` (`checkout-purchase-flow.e2e.spec.ts`): timeout waiting for coupon API response (`/api/cart/coupon`).
+## Latest Execution Snapshot (February 24, 2026)
 
-### Expected-fail behavior (known bug policy still active)
-- `FM-BUG-001` remains tracked for login/session behavior on WebKit-based projects.
-- Login-dependent tests on `webkit` and `iphone` still use expected-fail annotations, so report status is controlled and intentional.
+### Full suite
+- Command: `npm test`
+- Result: `124 total`, `95 passed`, `29 failed`, `0 skipped`
 
-## Full Project Result (Allure Snapshot)
+### Detected Bugs From This Run (29 Failed Cases)
 
-- Command: `npx playwright test`
-- Allure total: `124`
-- Passed: `109`
-- Failed: `15`
-- Broken: `0`
-- Skipped: `0`
+| Project | Test case | Observed failure | Detected bug | Recommended fix |
+|---|---|---|---|---|
+| `webkit` (14 fails) | `A11Y-P02`, `A11Y-P03`, `A11Y-P04`, `AUTHE2E-P01`, `AUTHE2E-E01`, `CHECKOUTE2E-P01/N01/E01` (authorization), `CHECKOUTE2E-P01/N01/E01` (purchase), `ORDERSINT-P01/N01/E01` | Login/session-dependent flows fail in sequence; protected pages and downstream checkout/order flows become unreachable or unstable after auth step | `FM-BUG-004` session persistence or auth-state propagation instability on WebKit matrix | Validate cookie/session persistence (Set-Cookie flags, SameSite, secure, domain/path), add deterministic post-login session check endpoint, and harden auth guard handling before dependent navigation |
+| `iphone` (14 fails) | `A11Y-P02`, `A11Y-P03`, `A11Y-P04`, `AUTHE2E-P01`, `AUTHE2E-E01`, `CHECKOUTE2E-P01/N01/E01` (authorization), `CHECKOUTE2E-P01/N01/E01` (purchase), `ORDERSINT-P01/N01/E01` | Same failure pattern as WebKit desktop across auth-dependent and order-dependent journeys | `FM-BUG-005` mobile WebKit auth/session continuity defect (same family as FM-BUG-004) | Fix auth/session continuity for mobile WebKit, then re-verify full flow chain (`auth -> cart -> checkout -> orders`) with project-specific diagnostics enabled |
+| `pixel` (1 fail) | `CHECKOUTE2E-E01` (`tests/e2e/checkout/purchase.e2e.spec.ts:35`) | Invalid-expiry validation path fails only on Pixel during checkout edge flow | `FM-BUG-006` checkout form readiness/state transition race on Pixel | Add explicit readiness checks before billing/payment fill, verify checkout step transition completion, and stabilize edge validation assertion timing |
+
+
+## Allure Summary Image
 
 ![Allure Overall Summary](docs/images/allure-overall-summary.png)
 
 ## Coverage Inventory
 
-Active test files (8):
+Active specs:
 
-- `tests/a11y/critical/critical-pages.a11y.spec.ts`
-- `tests/api/auth/auth-and-catalog.api.spec.ts`
-- `tests/e2e/auth/forgot-reset-flow.e2e.spec.ts`
-- `tests/e2e/auth/login-flow.e2e.spec.ts`
-- `tests/e2e/checkout/checkout-authorization-block.e2e.spec.ts`
-- `tests/e2e/checkout/checkout-purchase-flow.e2e.spec.ts`
-- `tests/integration/orders/order-created-via-api-visible-in-ui.integration.spec.ts`
-- `tests/security/api/security-smoke.security.spec.ts`
+- `tests/a11y/critical/pages.a11y.spec.ts`
+- `tests/api/auth/auth-catalog.api.spec.ts`
+- `tests/e2e/auth/reset-password.e2e.spec.ts`
+- `tests/e2e/auth/login.e2e.spec.ts`
+- `tests/e2e/checkout/authorization.e2e.spec.ts`
+- `tests/e2e/checkout/purchase.e2e.spec.ts`
+- `tests/integration/orders/api-to-ui.integration.spec.ts`
+- `tests/security/api/smoke.security.spec.ts`
 
-Removed from active suite:
+Out of active suite:
+
 - `tests/e2e/checkout/quantity-over-stock.e2e.spec.ts`
 
 ## Project Structure
@@ -70,66 +68,69 @@ Removed from active suite:
 ```text
 src/
   api/            # API client wrapper
-  config/         # env parsing
-  data/           # business data, routes, known bugs
-  fixtures/       # shared typed fixtures
-  flows/          # business flows used by tests
-  pages/          # page objects (POM)
-  support/        # helpers (a11y, known bug, state control, test ids)
+  config/         # Environment parsing
+  data/           # Test data and constants
+  fixtures/       # Shared fixtures
+  flows/          # Business flows
+  pages/          # Page objects (POM)
+  support/        # Utilities (a11y, state control, test ids)
 tests/
-  e2e/
+  a11y/
   api/
+  e2e/
   integration/
   security/
-  a11y/
 ```
 
-## QA Tag Taxonomy (Required)
+## Tag Model
 
-### 1) Test Type
+### Test Type
 - `@e2e`
 - `@api`
 - `@integration`
 - `@a11y`
 - `@security`
 
-### 2) Execution Scope
+### Execution Scope
 - `@smoke`
 - `@regression`
 - `@critical`
 
-### 3) Data and State Impact
+### Data or State Impact
 - `@safe`
 - `@destructive`
 - `@seeded`
 
-### 4) Business Area
+### Business Area
 - `@auth`
 - `@catalog`
 - `@cart`
 - `@checkout`
 - `@orders`
 
-Example title:
+Example:
 `Customer completes purchase flow @e2e @critical @destructive @checkout @orders`
 
 ## Browser and Device Matrix
 
-- `chrome` (Desktop Chrome, channel `chrome`)
-- `webkit` (Desktop Safari/WebKit)
-- `iphone` (iPhone 14)
-- `pixel` (Pixel 7)
+- `chrome` (`Desktop Chrome`, channel `chrome`)
+- `webkit` (`Desktop Safari/WebKit`)
+- `iphone` (`iPhone 14`)
+- `pixel` (`Pixel 7`)
 
-## Install
+## Installation
 
 ```bash
 npm ci
 npx playwright install --with-deps chrome webkit
 ```
 
-## Environment Profiles
+## Environment Configuration
 
-Copy `.env.example` to `.env` and set:
+Copy `.env.example` to `.env`.
+
+Required keys:
+
 - `APP_BASE_URL`
 - `API_BASE_URL`
 - `TEST_API_KEY`
@@ -142,27 +143,26 @@ Copy `.env.example` to `.env` and set:
 
 Recommended profiles:
 
-1. `prod-safe` (real URL smoke/regression)
+1. `prod-safe`
 - `ALLOW_TEST_CONTROL_API=false`
 
-2. `seeded-control` (local/staging with reset endpoints)
+2. `seeded-control`
 - `ALLOW_TEST_CONTROL_API=true`
 - `STOCK_RESET_VALUE=50`
-- backend must enable test mode endpoints
-- for production control, backend also needs:
+- Backend prerequisites for stock control in production:
   - `TEST_MODE=true`
   - `TEST_ALLOW_PROD_STOCK_CONTROL=true`
-  - secure `TEST_API_KEY`
+  - strong `TEST_API_KEY`
 
-## Run Tests
+## Run Commands
 
-### Run all
+Run all:
 
 ```bash
 npm test
 ```
 
-### Run by tag
+Run by tag:
 
 ```bash
 npm run test:smoke
@@ -175,7 +175,7 @@ npm run test:security
 npm run test:a11y
 ```
 
-### Run by browser and device
+Run by matrix target:
 
 ```bash
 npm run test:chrome
@@ -184,7 +184,7 @@ npm run test:iphone
 npm run test:pixel
 ```
 
-### Run shards
+Run shards:
 
 ```bash
 npm run test:critical:shard:1of2
@@ -193,87 +193,86 @@ npm run test:critical:shard:2of2
 
 ## Reports
 
-### HTML report
+HTML report:
 
 ```bash
 npm run report:html
 ```
 
-### Allure report
+Allure report:
 
 ```bash
 npm run report:allure:generate
 npm run report:allure:open
 ```
 
-### Latest generated artifacts (local)
+Main output paths:
+
 - `playwright-report/index.html`
 - `allure-report/index.html`
 - `docs/images/allure-overall-summary.png`
-- `report-snapshots/playwright-report-summary.png`
-- `report-snapshots/allure-report-overview.png`
-- `artifacts/reports-*.zip`
 
-## Known Bugs and Expected-Fail Policy
+## CI Execution (Manual Only)
 
-- Known bug tracking is centralized in `src/data/known-bugs.ts`
-- Current tracked bug:
-  - `FM-BUG-001`: Authenticated session not persisted on WebKit-based browsers
-- Login-dependent suites on `webkit` and `iphone` are annotated via `test.fail(...)` helper:
-  - if bug reproduces: reported as expected fail (suite stays stable)
-  - if bug is fixed unexpectedly: reported as unexpected pass (signals cleanup needed)
+CI workflow runs only via `workflow_dispatch` (manual trigger).
 
-## Flaky Controls
+Workflow file:
 
-- Locator + `expect` only (no `waitForTimeout`)
-- `data-testid` as primary selectors
-- retries: `CI=1`, local `=0`
-- trace/screenshot/video: `on`
-- full parallel + shard support
-- mobile click fallbacks for transient overlay interception cases
-- optional stock reset via `/api/test/reset-stock` (when control API is enabled)
+- `.github/workflows/playwright.yml`
 
-## Recent Change Summary
+Required GitHub Secrets:
 
-- Stabilized forgot/reset flow with deterministic inbox polling and token-state handling
-- Normalized login-dependent known-bug annotation usage across E2E and integration suites
-- Improved cart interaction stability on mobile viewports (`checkout`/`coupon` actions)
-- Fixed invoice navigation from inbox emails opened with `target="_blank"` links
-- Removed stock-overflow E2E scenario from active suite
+- `TEST_API_KEY`
+- `TEST_USER_PASSWORD`
 
-## Test Strategy (1-page)
+Manual inputs at runtime:
 
-### Scope in
-- Critical business flows only: auth, catalog, cart, checkout, orders
-- Multi-layer checks: E2E, API, Integration, Security smoke, targeted A11y
+- `app_base_url`
+- `api_base_url`
+- `allow_test_control_api`
+- `test_user_username`
+- `test_user_email`
+- `test_coupon_code`
 
-### Scope out
-- Full visual regression
-- Full DAST/pentest
-- Non-critical long-tail permutations
+## Failure Semantics
 
-### Critical risks
-- Login/session break
-- Wrong cart/discount/checkout totals
-- Unauthorized order APIs exposed
-- Checkout allows place-order without authorization
-- Regression in reset-password and inbox handoff
+- Expected-fail annotations are disabled in this suite.
+- Every failed test reported in Playwright/Allure is a true fail and should be treated as a real defect until triaged.
+- Bug IDs in the execution table are reporting labels only and do not change pass/fail behavior.
 
-### Coverage map
-- E2E: real user flow through UI for critical journeys
-- API: endpoint correctness and auth/validation behavior
-- Integration: API-created business state reflected in UI
-- Security smoke: CORS, auth guards, baseline headers/cookie flags
-- A11y: critical pages only (login/cart/checkout/profile orders)
+## Flakiness Controls
 
-### Data and environment strategy
-- No business constants in spec bodies
-- Data centralized in `src/data` and `src/config/env.ts`
-- Optional idempotent reset and seed via test-control API
-- Unique users for reset-password flow where needed
+- Locator + `expect` patterns only (`waitForTimeout` avoided)
+- `data-testid` as primary selector strategy
+- Retries: `CI=1`, local `=0`
+- Trace, screenshot, and video enabled
+- Parallel and shard-compatible test commands
+- Optional stock reset via `/api/test/reset-stock` when control API is enabled
 
-### Exit criteria
-- `@critical` passes on required browser and device matrix
-- no serious and critical a11y violations on scoped pages
-- no blocker defects in checkout/order/auth critical path
-- HTML + Allure reports generated and attached in CI
+## Test Strategy (One Page)
+
+In scope:
+
+- Critical business flows: `auth`, `catalog`, `cart`, `checkout`, `orders`
+- Cross-layer coverage: `E2E`, `API`, `Integration`, `Security smoke`, `A11y`
+
+Out of scope:
+
+- Full visual regression suite
+- Full DAST or penetration testing
+- Long-tail non-critical permutations
+
+Primary risks:
+
+- Authentication or session instability
+- Incorrect totals or checkout logic
+- Missing authorization checks on protected APIs
+- Regressions in password reset and invoice workflows
+
+Coverage mapping:
+
+- `E2E`: user-centric flows through UI
+- `API`: direct endpoint validation and auth behavior
+- `Integration`: cross-layer state validation (API to UI)
+- `Security smoke`: CORS, auth guard, baseline headers/cookies
+- `A11y`: critical user journeys only

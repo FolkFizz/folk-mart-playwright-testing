@@ -1,5 +1,5 @@
 import { expect } from "@playwright/test";
-import { ROUTES } from "../data/routes";
+import { ROUTES, ROUTE_MATCHERS } from "../data/routes";
 import { TEST_IDS } from "../support/test-ids";
 import { BasePage } from "./base.page";
 
@@ -24,7 +24,7 @@ export class CartPage extends BasePage {
 
   async goCheckout(): Promise<void> {
     await this.clickActionButtonWithFallback(TEST_IDS.cart.checkout);
-    await expect(this.page).toHaveURL(/\/checkout/);
+    await expect(this.page).toHaveURL(ROUTE_MATCHERS.checkout);
   }
 
   async increaseQuantityOnce(): Promise<void> {

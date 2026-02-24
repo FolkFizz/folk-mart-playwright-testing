@@ -1,4 +1,5 @@
 import { expect } from "@playwright/test";
+import { CHECKOUT_ERROR_PATTERNS } from "../data/assertions";
 import { ROUTES } from "../data/routes";
 import { TEST_IDS } from "../support/test-ids";
 import { BasePage } from "./base.page";
@@ -38,14 +39,20 @@ export class CheckoutPage extends BasePage {
   }
 
   async expectPaymentAuthorizationError(): Promise<void> {
-    await expect(this.byTestId(TEST_IDS.checkout.cardNumberError)).toContainText(/authorize/i);
+    await expect(this.byTestId(TEST_IDS.checkout.cardNumberError)).toContainText(
+      CHECKOUT_ERROR_PATTERNS.paymentAuthorizationRequired
+    );
   }
 
-  async expectCardNumberErrorContains(text: RegExp): Promise<void> {
-    await expect(this.byTestId(TEST_IDS.checkout.cardNumberError)).toContainText(text);
+  async expectCardDeclinedError(): Promise<void> {
+    await expect(this.byTestId(TEST_IDS.checkout.cardNumberError)).toContainText(
+      CHECKOUT_ERROR_PATTERNS.cardDeclined
+    );
   }
 
-  async expectExpiryErrorContains(text: RegExp): Promise<void> {
-    await expect(this.byTestId(TEST_IDS.checkout.cardExpiryError)).toContainText(text);
+  async expectExpiryFormatError(): Promise<void> {
+    await expect(this.byTestId(TEST_IDS.checkout.cardExpiryError)).toContainText(
+      CHECKOUT_ERROR_PATTERNS.expiryFormat
+    );
   }
 }

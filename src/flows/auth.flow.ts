@@ -1,4 +1,5 @@
 import { expect, Page } from "@playwright/test";
+import { ROUTE_MATCHERS } from "../data/routes";
 import { USERS } from "../data/users";
 import { TEST_IDS } from "../support/test-ids";
 import { LoginPage } from "../pages/login.page";
@@ -19,7 +20,7 @@ export class AuthFlow {
   async loginWithCredentials(username: string, password: string): Promise<void> {
     await this.loginPage.open();
     await this.loginPage.login(username, password);
-    await expect(this.page).toHaveURL(/\/home/);
+    await expect(this.page).toHaveURL(ROUTE_MATCHERS.home);
     await this.openNavMenuIfCollapsed();
     await expect(this.page.getByTestId(TEST_IDS.nav.profile)).toBeVisible();
     await expect(this.page.getByTestId(TEST_IDS.nav.login)).toHaveCount(0);

@@ -1,4 +1,5 @@
 import { expect, test } from "../../../src/fixtures/test-fixtures";
+import { API_MESSAGE_PATTERNS } from "../../../src/data/assertions";
 import { USERS } from "../../../src/data/users";
 
 test.describe("SECURITY SMOKE :: API", () => {
@@ -37,7 +38,7 @@ test.describe("SECURITY SMOKE :: API", () => {
 
         expect(response.status()).toBe(500);
         const payload = await response.json();
-        expect(String(payload.message)).toMatch(/origin not allowed by cors/i);
+        expect(String(payload.message)).toMatch(API_MESSAGE_PATTERNS.corsOriginNotAllowed);
       }
     );
 
@@ -47,7 +48,7 @@ test.describe("SECURITY SMOKE :: API", () => {
         const payload = await apiClient.get("/api/orders", 401);
 
         expect(payload.ok).toBeFalsy();
-        expect(String(payload.message)).toMatch(/authentication required/i);
+        expect(String(payload.message)).toMatch(API_MESSAGE_PATTERNS.authenticationRequired);
       }
     );
   });

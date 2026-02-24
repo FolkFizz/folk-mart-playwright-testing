@@ -1,4 +1,5 @@
 import { expect } from "@playwright/test";
+import { UI_MESSAGE_PATTERNS } from "../data/assertions";
 import { TEST_IDS } from "../support/test-ids";
 import { BasePage } from "./base.page";
 
@@ -37,7 +38,9 @@ export class ResetPasswordPage extends BasePage {
   }
 
   async expectInvalidTokenMessage(): Promise<void> {
-    await expect(this.page.locator(".auth-card .alert.alert-error")).toContainText(/reset token is invalid or expired/i);
+    await expect(this.page.locator(".auth-card .alert.alert-error")).toContainText(
+      UI_MESSAGE_PATTERNS.resetTokenInvalidOrExpired
+    );
   }
 
   async updatePassword(password: string): Promise<void> {

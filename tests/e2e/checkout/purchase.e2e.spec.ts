@@ -1,19 +1,12 @@
 import { test } from "../../../src/fixtures/test-fixtures";
 import { BILLING, PAYMENT } from "../../../src/data/business";
 import { USERS } from "../../../src/data/users";
-import { markWebkitAuthSessionKnownBug } from "../../../src/support/known-bug";
-import { resetStateIfEnabled } from "../../../src/support/state-control";
-
-test.beforeEach(async ({ apiClient }) => {
-  await resetStateIfEnabled(apiClient);
-});
 
 test.describe("CHECKOUT :: E2E", () => {
   test.describe("positive cases", () => {
     test(
       "CHECKOUTE2E-P01: customer completes checkout and opens invoice from inbox @e2e @critical @destructive @seeded @auth @cart @checkout @orders",
-      async ({ authFlow, purchaseFlow, browserName }, testInfo) => {
-        markWebkitAuthSessionKnownBug(browserName, testInfo);
+      async ({ authFlow, purchaseFlow }) => {
         await authFlow.loginAsStandardUser();
         await purchaseFlow.completeHappyPathCheckout();
         await purchaseFlow.openInvoiceFromInbox();
@@ -24,8 +17,7 @@ test.describe("CHECKOUT :: E2E", () => {
   test.describe("negative cases", () => {
     test(
       "CHECKOUTE2E-N01: declined card is rejected at authorization step @e2e @regression @safe @checkout",
-      async ({ authFlow, homePage, cartPage, checkoutPage, browserName }, testInfo) => {
-        markWebkitAuthSessionKnownBug(browserName, testInfo);
+      async ({ authFlow, homePage, cartPage, checkoutPage }) => {
         await authFlow.loginAsStandardUser();
         await homePage.open();
         await homePage.addFirstProductToCart();
@@ -34,7 +26,7 @@ test.describe("CHECKOUT :: E2E", () => {
         await checkoutPage.fillBilling(BILLING.name, USERS.standard.email, BILLING.address);
         await checkoutPage.fillPayment(PAYMENT.declinedCardNumber, PAYMENT.expiry, PAYMENT.cvv);
         await checkoutPage.authorizePayment();
-        await checkoutPage.expectCardNumberErrorContains(/declined/i);
+        await checkoutPage.expectCardDeclinedError();
       }
     );
   });
@@ -42,8 +34,7 @@ test.describe("CHECKOUT :: E2E", () => {
   test.describe("edge cases", () => {
     test(
       "CHECKOUTE2E-E01: invalid expiry format is validated before placement @e2e @regression @safe @checkout",
-      async ({ authFlow, homePage, cartPage, checkoutPage, browserName }, testInfo) => {
-        markWebkitAuthSessionKnownBug(browserName, testInfo);
+      async ({ authFlow, homePage, cartPage, checkoutPage }) => {
         await authFlow.loginAsStandardUser();
         await homePage.open();
         await homePage.addFirstProductToCart();
@@ -52,7 +43,7 @@ test.describe("CHECKOUT :: E2E", () => {
         await checkoutPage.fillBilling(BILLING.name, USERS.standard.email, BILLING.address);
         await checkoutPage.fillPayment(PAYMENT.approvedCardNumber, PAYMENT.invalidExpiry, PAYMENT.cvv);
         await checkoutPage.authorizePayment();
-        await checkoutPage.expectExpiryErrorContains(/mm\/yy/i);
+        await checkoutPage.expectExpiryFormatError();
       }
     );
   });

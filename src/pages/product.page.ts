@@ -1,4 +1,5 @@
 import { expect } from "@playwright/test";
+import { UI_MESSAGE_PATTERNS } from "../data/assertions";
 import { TEST_IDS } from "../support/test-ids";
 import { BasePage } from "./base.page";
 
@@ -25,6 +26,8 @@ export class ProductPage extends BasePage {
   }
 
   async expectStockLimitError(): Promise<void> {
-    await expect(this.byTestId(TEST_IDS.shared.flashMessage)).toContainText(/stock limit/i);
+    await expect(this.byTestId(TEST_IDS.shared.flashMessage)).toContainText(
+      UI_MESSAGE_PATTERNS.stockLimitReached
+    );
   }
 }
