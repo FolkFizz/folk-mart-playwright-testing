@@ -1,85 +1,38 @@
 # Folk Mart Playwright Testing
 
-Playwright-based test project for the Folk Mart web application.
+Playwright-based test suite for the [Folk Mart](https://folk-mart-1.onrender.com) web application, covering E2E, API, Integration, Security smoke, and Accessibility layers.
 
-Application URL: `https://folk-mart-1.onrender.com`
+---
 
 ## Table of Contents
+
 - [Project Overview](#project-overview)
-- [Latest Execution Snapshot (February 24, 2026)](#latest-execution-snapshot-february-24-2026)
-- [Allure Summary Image](#allure-summary-image)
-- [Coverage Inventory](#coverage-inventory)
 - [Project Structure](#project-structure)
-- [Tag Model](#tag-model)
-- [Browser and Device Matrix](#browser-and-device-matrix)
 - [Installation](#installation)
 - [Environment Configuration](#environment-configuration)
 - [Run Commands](#run-commands)
-- [Reports](#reports)
-- [CI Execution (Manual Only)](#ci-execution-manual-only)
+- [Coverage Inventory](#coverage-inventory)
+- [Tag Model](#tag-model)
+- [Browser and Device Matrix](#browser-and-device-matrix)
+- [Test Strategy](#test-strategy)
 - [Failure Semantics](#failure-semantics)
 - [Flakiness Controls](#flakiness-controls)
-- [Test Strategy (One Page)](#test-strategy-one-page)
+- [Reports](#reports)
+- [CI Execution](#ci-execution)
+- [Latest Execution Snapshot](#latest-execution-snapshot-february-24-2026)
+
+---
 
 ## Project Overview
 
-- Test layers: `E2E`, `API`, `Integration`, `Security smoke`, `A11y`
-- Design approach: `POM + Flow` layers with centralized test data
-- Execution style: tag-based selection, browser matrix, shard-ready commands
+| Attribute          | Detail                                              |
+|--------------------|-----------------------------------------------------|
+| Application URL    | https://folk-mart-1.onrender.com                    |
+| Test layers        | E2E, API, Integration, Security smoke, A11y         |
+| Design approach    | POM + Flow layers with centralized test data        |
+| Execution style    | Tag-based selection, browser matrix, shard-ready    |
 
-## Latest Execution Snapshot (February 24, 2026)
-
-### Full suite
-- Command: `npm test`
-- Result: `124 total`, `95 passed`, `29 failed`, `0 skipped`
-
-### Detected Bugs From This Run (29 Failed Cases)
-
-| Bug ID | Projects / Failed cases | Affected flow groups | Recommended fix |
-|---|---|---|---|
-| `FM-BUG-004` | `webkit` / `14` | `a11y`, `auth`, `checkout`, `orders` | Stabilize WebKit session persistence after login (cookie flags + deterministic session check endpoint) before navigating to protected routes |
-| `FM-BUG-005` | `iphone` / `14` | `a11y`, `auth`, `checkout`, `orders` | Apply the same session-continuity hardening for mobile WebKit and re-verify full chain (`auth -> cart -> checkout -> orders`) |
-| `FM-BUG-006` | `pixel` / `1` | `checkout edge` | Add explicit checkout form readiness/assertion synchronization before invalid-expiry validation |
-
-<details>
-<summary><strong>Failed Case Map (Expanded)</strong></summary>
-
-**`FM-BUG-004` (`webkit`, 14 fails)**  
-`A11Y-P02`, `A11Y-P03`, `A11Y-P04`, `AUTHE2E-P01`, `AUTHE2E-E01`,  
-`CHECKOUTE2E-P01/N01/E01` (authorization), `CHECKOUTE2E-P01/N01/E01` (purchase),  
-`ORDERSINT-P01/N01/E01`
-
-**`FM-BUG-005` (`iphone`, 14 fails)**  
-`A11Y-P02`, `A11Y-P03`, `A11Y-P04`, `AUTHE2E-P01`, `AUTHE2E-E01`,  
-`CHECKOUTE2E-P01/N01/E01` (authorization), `CHECKOUTE2E-P01/N01/E01` (purchase),  
-`ORDERSINT-P01/N01/E01`
-
-**`FM-BUG-006` (`pixel`, 1 fail)**  
-`CHECKOUTE2E-E01` (`tests/e2e/checkout/purchase.e2e.spec.ts:35`)
-
-</details>
-
-
-## Allure Summary Image
-
-![Allure Overall Summary](docs/images/allure-overall-summary.png)
-
-## Coverage Inventory
-
-Active specs:
-
-- `tests/a11y/critical/pages.a11y.spec.ts`
-- `tests/api/auth/auth-catalog.api.spec.ts`
-- `tests/e2e/auth/reset-password.e2e.spec.ts`
-- `tests/e2e/auth/login.e2e.spec.ts`
-- `tests/e2e/checkout/authorization.e2e.spec.ts`
-- `tests/e2e/checkout/purchase.e2e.spec.ts`
-- `tests/integration/orders/api-to-ui.integration.spec.ts`
-- `tests/security/api/smoke.security.spec.ts`
-
-Out of active suite:
-
-- `tests/e2e/checkout/quantity-over-stock.e2e.spec.ts`
+---
 
 ## Project Structure
 
@@ -100,41 +53,7 @@ tests/
   security/
 ```
 
-## Tag Model
-
-### Test Type
-- `@e2e`
-- `@api`
-- `@integration`
-- `@a11y`
-- `@security`
-
-### Execution Scope
-- `@smoke`
-- `@regression`
-- `@critical`
-
-### Data or State Impact
-- `@safe`
-- `@destructive`
-- `@seeded`
-
-### Business Area
-- `@auth`
-- `@catalog`
-- `@cart`
-- `@checkout`
-- `@orders`
-
-Example:
-`Customer completes purchase flow @e2e @critical @destructive @checkout @orders`
-
-## Browser and Device Matrix
-
-- `chrome` (`Desktop Chrome`, channel `chrome`)
-- `webkit` (`Desktop Safari/WebKit`)
-- `iphone` (`iPhone 14`)
-- `pixel` (`Pixel 7`)
+---
 
 ## Installation
 
@@ -143,49 +62,57 @@ npm ci
 npx playwright install --with-deps chrome webkit
 ```
 
+---
+
 ## Environment Configuration
 
-Copy `.env.example` to `.env`.
+Copy `.env.example` to `.env` and populate the required keys.
 
-Required keys:
+### Required Keys
 
-- `APP_BASE_URL`
-- `API_BASE_URL`
-- `TEST_API_KEY`
-- `ALLOW_TEST_CONTROL_API`
-- `STOCK_RESET_VALUE`
-- `TEST_USER_USERNAME`
-- `TEST_USER_PASSWORD`
-- `TEST_USER_EMAIL`
-- `TEST_COUPON_CODE`
+| Key                       | Description                              |
+|---------------------------|------------------------------------------|
+| `APP_BASE_URL`            | Base URL for the web application         |
+| `API_BASE_URL`            | Base URL for the API                     |
+| `TEST_API_KEY`            | API key for test control endpoints       |
+| `ALLOW_TEST_CONTROL_API`  | Enable/disable stock reset capability    |
+| `STOCK_RESET_VALUE`       | Stock quantity used during reset         |
+| `TEST_USER_USERNAME`      | Test user login username                 |
+| `TEST_USER_PASSWORD`      | Test user login password                 |
+| `TEST_USER_EMAIL`         | Test user email address                  |
+| `TEST_COUPON_CODE`        | Coupon code used in checkout tests       |
 
-Recommended profiles:
+### Recommended Profiles
 
-1. `prod-safe`
-- `ALLOW_TEST_CONTROL_API=false`
+**`prod-safe`** — read-only runs, no data mutation
 
-2. `seeded-control`
-- `ALLOW_TEST_CONTROL_API=true`
-- `STOCK_RESET_VALUE=50`
-- Backend prerequisites for stock control in production:
-  - `TEST_MODE=true`
-  - `TEST_ALLOW_PROD_STOCK_CONTROL=true`
-  - strong `TEST_API_KEY`
+```env
+ALLOW_TEST_CONTROL_API=false
+```
+
+**`seeded-control`** — full suite with stock reset
+
+```env
+ALLOW_TEST_CONTROL_API=true
+STOCK_RESET_VALUE=50
+```
+
+> Backend prerequisites for `seeded-control` in production:
+> `TEST_MODE=true`, `TEST_ALLOW_PROD_STOCK_CONTROL=true`, and a strong `TEST_API_KEY`.
+
+---
 
 ## Run Commands
 
-Run all:
+### Full Suite
 
 ```bash
 npm test
 ```
 
-Run by tag:
+### By Test Type
 
 ```bash
-npm run test:smoke
-npm run test:regression
-npm run test:critical
 npm run test:e2e
 npm run test:api
 npm run test:integration
@@ -193,7 +120,15 @@ npm run test:security
 npm run test:a11y
 ```
 
-Run by matrix target:
+### By Execution Scope
+
+```bash
+npm run test:smoke
+npm run test:regression
+npm run test:critical
+```
+
+### By Browser / Device
 
 ```bash
 npm run test:chrome
@@ -202,95 +137,208 @@ npm run test:iphone
 npm run test:pixel
 ```
 
-Run shards:
+### Sharded Runs
 
 ```bash
 npm run test:critical:shard:1of2
 npm run test:critical:shard:2of2
 ```
 
-## Reports
+---
 
-HTML report:
+## Coverage Inventory
 
-```bash
-npm run report:html
+### Active Specs
+
+| Path                                                  | Layer       | Area         |
+|-------------------------------------------------------|-------------|--------------|
+| `tests/a11y/critical/pages.a11y.spec.ts`              | A11y        | Pages        |
+| `tests/api/auth/auth-catalog.api.spec.ts`             | API         | Auth         |
+| `tests/e2e/auth/reset-password.e2e.spec.ts`           | E2E         | Auth         |
+| `tests/e2e/auth/login.e2e.spec.ts`                    | E2E         | Auth         |
+| `tests/e2e/checkout/authorization.e2e.spec.ts`        | E2E         | Checkout     |
+| `tests/e2e/checkout/purchase.e2e.spec.ts`             | E2E         | Checkout     |
+| `tests/integration/orders/api-to-ui.integration.spec.ts` | Integration | Orders    |
+| `tests/security/api/smoke.security.spec.ts`           | Security    | API          |
+
+### Out of Active Suite
+
+| Path                                                  | Reason        |
+|-------------------------------------------------------|---------------|
+| `tests/e2e/checkout/quantity-over-stock.e2e.spec.ts`  | Out of scope  |
+
+---
+
+## Tag Model
+
+Tags are composed per test title to enable flexible filtering.
+
+### Test Type
+`@e2e` · `@api` · `@integration` · `@a11y` · `@security`
+
+### Execution Scope
+`@smoke` · `@regression` · `@critical`
+
+### Data / State Impact
+`@safe` · `@destructive` · `@seeded`
+
+### Business Area
+`@auth` · `@catalog` · `@cart` · `@checkout` · `@orders`
+
+**Example:**
+```
+Customer completes purchase flow @e2e @critical @destructive @checkout @orders
 ```
 
-Allure report:
+---
 
-```bash
-npm run report:allure:generate
-npm run report:allure:open
-```
+## Browser and Device Matrix
 
-Main output paths:
+| Project   | Config                   | Engine           |
+|-----------|--------------------------|------------------|
+| `chrome`  | Desktop Chrome           | Chromium (stable channel) |
+| `webkit`  | Desktop Safari / WebKit  | WebKit           |
+| `iphone`  | iPhone 14                | Mobile WebKit    |
+| `pixel`   | Pixel 7                  | Mobile Chromium  |
 
-- `playwright-report/index.html`
-- `allure-report/index.html`
-- `docs/images/allure-overall-summary.png`
+---
 
-## CI Execution (Manual Only)
+## Test Strategy
 
-CI workflow runs only via `workflow_dispatch` (manual trigger).
+### In Scope
 
-Workflow file:
+| Layer            | Coverage Goal                                     |
+|------------------|---------------------------------------------------|
+| E2E              | User-centric flows through the UI                 |
+| API              | Direct endpoint validation and auth behavior      |
+| Integration      | Cross-layer state validation (API → UI)           |
+| Security smoke   | CORS, auth guards, baseline headers and cookies   |
+| A11y             | Critical user journeys only                       |
 
-- `.github/workflows/playwright.yml`
+**Business flows covered:** `auth`, `catalog`, `cart`, `checkout`, `orders`
 
-Required GitHub Secrets:
-
-- `TEST_API_KEY`
-- `TEST_USER_PASSWORD`
-
-Manual inputs at runtime:
-
-- `app_base_url`
-- `api_base_url`
-- `allow_test_control_api`
-- `test_user_username`
-- `test_user_email`
-- `test_coupon_code`
-
-## Failure Semantics
-
-- Expected-fail annotations are disabled in this suite.
-- Every failed test reported in Playwright/Allure is a true fail and should be treated as a real defect until triaged.
-- Bug IDs in the execution table are reporting labels only and do not change pass/fail behavior.
-
-## Flakiness Controls
-
-- Locator + `expect` patterns only (`waitForTimeout` avoided)
-- `data-testid` as primary selector strategy
-- Retries: `CI=1`, local `=0`
-- Trace, screenshot, and video enabled
-- Parallel and shard-compatible test commands
-- Optional stock reset via `/api/test/reset-stock` when control API is enabled
-
-## Test Strategy (One Page)
-
-In scope:
-
-- Critical business flows: `auth`, `catalog`, `cart`, `checkout`, `orders`
-- Cross-layer coverage: `E2E`, `API`, `Integration`, `Security smoke`, `A11y`
-
-Out of scope:
+### Out of Scope
 
 - Full visual regression suite
 - Full DAST or penetration testing
 - Long-tail non-critical permutations
 
-Primary risks:
+### Primary Risks
 
 - Authentication or session instability
 - Incorrect totals or checkout logic
 - Missing authorization checks on protected APIs
 - Regressions in password reset and invoice workflows
 
-Coverage mapping:
+---
 
-- `E2E`: user-centric flows through UI
-- `API`: direct endpoint validation and auth behavior
-- `Integration`: cross-layer state validation (API to UI)
-- `Security smoke`: CORS, auth guard, baseline headers/cookies
-- `A11y`: critical user journeys only
+## Failure Semantics
+
+- Expected-fail annotations are **disabled** in this suite.
+- Every failed test is a **true failure** and should be treated as a real defect until triaged.
+- Bug IDs in the execution table are reporting labels only — they do not affect pass/fail behavior.
+
+---
+
+## Flakiness Controls
+
+- Locator + `expect` patterns only (`waitForTimeout` avoided)
+- `data-testid` as primary selector strategy
+- Retries: `1` on CI, `0` locally
+- Trace, screenshot, and video capture enabled on failure
+- Parallel and shard-compatible test commands
+- Optional stock reset via `POST /api/test/reset-stock` when control API is enabled
+
+---
+
+## Reports
+
+### HTML Report
+
+```bash
+npm run report:html
+```
+
+### Allure Report
+
+```bash
+npm run report:allure:generate
+npm run report:allure:open
+```
+
+### Output Paths
+
+| Report         | Path                                        |
+|----------------|---------------------------------------------|
+| HTML           | `playwright-report/index.html`              |
+| Allure         | `allure-report/index.html`                  |
+| Allure image   | `docs/images/allure-overall-summary.png`    |
+
+---
+
+## CI Execution
+
+CI workflow runs **only via `workflow_dispatch`** (manual trigger only).
+
+**Workflow file:** `.github/workflows/playwright.yml`
+
+### Required GitHub Secrets
+
+| Secret                | Description               |
+|-----------------------|---------------------------|
+| `TEST_API_KEY`        | API key for test control  |
+| `TEST_USER_PASSWORD`  | Test user password        |
+
+### Manual Inputs at Runtime
+
+| Input                    | Description                       |
+|--------------------------|-----------------------------------|
+| `app_base_url`           | Application base URL              |
+| `api_base_url`           | API base URL                      |
+| `allow_test_control_api` | Enable stock reset capability     |
+| `test_user_username`     | Test user login username          |
+| `test_user_email`        | Test user email address           |
+| `test_coupon_code`       | Coupon code for checkout tests    |
+
+---
+
+## Latest Execution Snapshot (February 24, 2026)
+
+### Full Suite Result
+
+| Command     | Total | Passed | Failed | Skipped |
+|-------------|------:|-------:|-------:|--------:|
+| `npm test`  | 124   | 95     | 29     | 0       |
+
+### Allure Summary
+
+![Allure Overall Summary](docs/images/allure-overall-summary.png)
+
+### Detected Bugs (29 Failed Cases)
+
+| Bug ID       | Project  | Failed Cases | Affected Areas                          | Recommended Fix                                                                                                         |
+|--------------|----------|--------------:|-----------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| `FM-BUG-004` | `webkit` | 14            | `a11y`, `auth`, `checkout`, `orders`    | Stabilize WebKit session persistence after login (cookie flags + deterministic session check endpoint) before navigating to protected routes |
+| `FM-BUG-005` | `iphone` | 14            | `a11y`, `auth`, `checkout`, `orders`    | Apply the same session-continuity hardening for mobile WebKit and re-verify full chain (`auth → cart → checkout → orders`) |
+| `FM-BUG-006` | `pixel`  | 1             | `checkout edge`                         | Add explicit checkout form readiness assertion + synchronization before invalid-expiry validation                        |
+
+<details>
+<summary><strong>Failed Case Map (Expanded)</strong></summary>
+
+**`FM-BUG-004` — `webkit` (14 failures)**
+
+`A11Y-P02`, `A11Y-P03`, `A11Y-P04`, `AUTHE2E-P01`, `AUTHE2E-E01`,
+`CHECKOUTE2E-P01/N01/E01` (authorization), `CHECKOUTE2E-P01/N01/E01` (purchase),
+`ORDERSINT-P01/N01/E01`
+
+**`FM-BUG-005` — `iphone` (14 failures)**
+
+`A11Y-P02`, `A11Y-P03`, `A11Y-P04`, `AUTHE2E-P01`, `AUTHE2E-E01`,
+`CHECKOUTE2E-P01/N01/E01` (authorization), `CHECKOUTE2E-P01/N01/E01` (purchase),
+`ORDERSINT-P01/N01/E01`
+
+**`FM-BUG-006` — `pixel` (1 failure)**
+
+`CHECKOUTE2E-E01` — `tests/e2e/checkout/purchase.e2e.spec.ts:35`
+
+</details>
