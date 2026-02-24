@@ -1,11 +1,41 @@
 name: Playwright Tests
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
+    inputs:
+      app_base_url:
+        description: "Frontend base URL"
+        required: true
+        type: string
+        default: "https://folk-mart-1.onrender.com"
+      api_base_url:
+        description: "Backend API base URL"
+        required: true
+        type: string
+        default: "https://folk-mart.onrender.com"
+      allow_test_control_api:
+        description: "Allow test-control endpoints"
+        required: true
+        type: choice
+        options:
+          - "false"
+          - "true"
+        default: "false"
+      test_user_username:
+        description: "Seeded test username"
+        required: true
+        type: string
+        default: "user"
+      test_user_email:
+        description: "Seeded test user email"
+        required: true
+        type: string
+        default: "user@folkmart.com"
+      test_coupon_code:
+        description: "Default coupon code"
+        required: true
+        type: string
+        default: "WELCOME10"
 
 jobs:
   test:
@@ -19,14 +49,14 @@ jobs:
         shard: ["1/2", "2/2"]
 
     env:
-      APP_BASE_URL: ${{ vars.APP_BASE_URL }}
-      API_BASE_URL: ${{ vars.API_BASE_URL }}
+      APP_BASE_URL: ${{ inputs.app_base_url }}
+      API_BASE_URL: ${{ inputs.api_base_url }}
       TEST_API_KEY: ${{ secrets.TEST_API_KEY }}
-      ALLOW_TEST_CONTROL_API: ${{ vars.ALLOW_TEST_CONTROL_API }}
-      TEST_USER_USERNAME: ${{ vars.TEST_USER_USERNAME }}
+      ALLOW_TEST_CONTROL_API: ${{ inputs.allow_test_control_api }}
+      TEST_USER_USERNAME: ${{ inputs.test_user_username }}
       TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-      TEST_USER_EMAIL: ${{ vars.TEST_USER_EMAIL }}
-      TEST_COUPON_CODE: ${{ vars.TEST_COUPON_CODE }}
+      TEST_USER_EMAIL: ${{ inputs.test_user_email }}
+      TEST_COUPON_CODE: ${{ inputs.test_coupon_code }}
 
     steps:
       - name: Checkout
